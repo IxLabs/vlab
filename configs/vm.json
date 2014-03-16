@@ -1,0 +1,60 @@
+{
+  "object_type": "vm_startup",
+  "range_low": 1,
+  "range_high": 50,
+  "max_ram": "384m",
+  "base_name": "VM_test",
+  "kernel_image": {
+    "dir": "/path_to_kernel",
+    "image_name": "linux",
+    "init_params": {
+      "init": "/bin/bash",
+      "console": "ttyS0,115200n8",
+      "root": "/dev/root",
+      "rootflags": {
+        "trans": "virtio",
+        "version": "9p2000.u"
+      },
+      "mode": "ro",
+      "rootfstype": "9p"
+    }
+  },
+  "properties": [
+    {
+      "type": "serial",
+      "id": "serial0",
+      "role": "guest_management",
+      "socket_path": "/tmp/some_path/mgmt.socket"
+    },
+    {
+      "type": "monitor",
+      "id": "monitor",
+      "role": "qemu_monitor",
+      "socket_path": "/tmp/some_path/mon.socket"
+    },
+    {
+      "type": "fsdev",
+      "id": "fsdev-root",
+      "path": "/root_path",
+      "mount_tag": "/dev/root",
+      "device_id": "fs-root",
+      "device_type": "virtio-9p-pci"
+    },
+    {
+      "type": "fsdev",
+      "id": "fsdev-home",
+      "path": "/home_path",
+      "mount_tag": "overlayshare",
+      "device_id": "fs-home",
+      "device_type": "virtio-9p-pci"
+    },
+    {
+      "type": "fsdev",
+      "id": "fsdev-kernel",
+      "path": "/path_to_kernel",
+      "mount_tag": "kernelshare",
+      "device_id": "fs-kernel",
+      "device_type": "virtio-9p-pci"
+    }
+  ]
+}
