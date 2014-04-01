@@ -2,13 +2,14 @@
   "object_type": "vm_startup",
   "range_low": 1,
   "range_high": 50,
+  "qemu_binary": "qemu-system-x86_64",
   "max_ram": "384m",
   "base_name": "VM_test",
   "kernel_image": {
-    "dir": "/path_to_kernel",
+    "dir": "/home/costash/linux_3.12_built",
     "image_name": "linux",
     "init_params": {
-      "init": "/bin/bash",
+      "init": "../scripts/vm_init.sh",
       "console": "ttyS0,115200n8",
       "root": "/dev/root",
       "rootflags": {
@@ -21,37 +22,42 @@
   },
   "properties": [
     {
+      "dev": "chardev",
       "type": "serial",
-      "id": "serial0",
+      "id": "mgmt",
       "role": "guest_management",
-      "socket_path": "/tmp/some_path/mgmt.socket"
+      "socket_name": "mgmt.socket"
     },
     {
-      "type": "monitor",
+      "dev": "chardev",
+      "type": "mon",
       "id": "monitor",
       "role": "qemu_monitor",
-      "socket_path": "/tmp/some_path/mon.socket"
+      "socket_name": "mon.socket"
     },
     {
-      "type": "fsdev",
+      "dev": "fsdev",
+      "type": "device",
       "id": "fsdev-root",
-      "path": "/root_path",
+      "path": "/",
       "mount_tag": "/dev/root",
       "device_id": "fs-root",
       "device_type": "virtio-9p-pci"
     },
     {
-      "type": "fsdev",
+      "dev": "fsdev",
+      "type": "device",
       "id": "fsdev-home",
-      "path": "/home_path",
+      "path": "/home/costash/workspace/vm_homes",
       "mount_tag": "overlayshare",
       "device_id": "fs-home",
       "device_type": "virtio-9p-pci"
     },
     {
-      "type": "fsdev",
+      "dev": "fsdev",
+      "type": "device",
       "id": "fsdev-kernel",
-      "path": "/path_to_kernel",
+      "path": "/home/costash/linux_3.12_built",
       "mount_tag": "kernelshare",
       "device_id": "fs-kernel",
       "device_type": "virtio-9p-pci"

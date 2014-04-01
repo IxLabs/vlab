@@ -17,35 +17,48 @@ error() {
 
 info "Running init script"
 
+info "First arg is " $1
+
 hostname ${uts}
 # Set path
 export TERM=screen
+info "Exported TERM: $TERM"
 export HOME=/root
+info "Exported HOME: $HOME"
 export PATH=/bin:/usr/local/bin:/usr/bin:/sbin:/usr/local/sbin:/usr/sbin:$HOME/bin
+info "Exported PATH: $PATH"
 
 # Set overlayfs
+info 'Mounting tmpfs ...'
 mount -t tmpfs tmpfs /tmp -o rw
+info 'Mounting proc ...'
 mount -n -t proc proc /proc
+info 'Mounting sysfs ...'
 mount -n -t sysfs sys /sys
 
+info 'Mounting root overlayshare ...'
 mkdir /tmp/vmroot
 mount -t 9p overlayshare /tmp/vmroot -o trans=virtio,version=9p2000.L,access=0,rw
 
+info 'Mounting home dir on /root ...'
 # Mount home dir on /root
-mkdir /tmp/vmroot/root
+#mkdir /tmp/vmroot/root
 mount -o bind /tmp/vmroot/root /root
 
+info 'Mounting /etc ...'
 # Mount /etc
-mkdir /tmp/vmroot/etc
+#mkdir /tmp/vmroot/etc
 mount -o bind /tmp/vmroot/etc /etc
 
+info 'Mounting kernel modules ...'
 # Mount kernel modules
-mkdir /tmp/kernel
+#mkdir /tmp/kernel
 mount -t 9p kernelshare /tmp/kernel -o trans=virtio,version=9p2000.L,access=0,rw
 mount -o bind /tmp/kernel/lib/modules /lib/modules
 
 # Clean /tmp and /run
 for fs in /run /var/run /var/tmp /var/log; do
+	info "Mounting ${fs}"
 	mount -t tmpfs tmpfs $fs -o rw,nosuid,nodev
 done
 
