@@ -1,10 +1,10 @@
 {
   "object_type": "vm_startup",
   "range_low": 1,
-  "range_high": 50,
+  "range_high": 5,
   "qemu_binary": "qemu-system-x86_64",
-  "max_ram": "384m",
-  "base_name": "VM_test",
+  "max_ram": "128m",
+  "base_name": "VM-test",
   "kernel_image": {
     "dir": "/home/costash/linux_3.12_built",
     "image_name": "linux",

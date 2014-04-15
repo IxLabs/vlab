@@ -48,16 +48,20 @@ class VmConfig( object ):
                 if not os.path.exists( path ):
                     os.makedirs( path )
 
-            fsdevProps = (' -fsdev local,security_model=passthrough,id=' +
-                          prop[ 'id' ] + ',path=' + prop[ 'path' ])
-            deviceProps = (' -device ' + prop[ 'device_type' ] +
-                           ',fsdev=' + prop['id'] +
-                           ',mount_tag=' + prop[ 'mount_tag' ])
+            security_model = 'none'
+            readonly = ''
             if prop[ 'id' ] == 'fsdev-root':
-                fsdevProps += ',readonly'
+                security_model = 'passthrough'
+                readonly = ',readonly'
+
+            fsdevProps = (' -fsdev local,security_model=' + security_model
+                          + ',id=' + prop[ 'id' ] + ',path=' + path + readonly)
+            deviceProps = (' -device ' + prop[ 'device_type' ] +
+                           ',fsdev=' + prop[ 'id' ] +
+                           ',mount_tag=' + prop[ 'mount_tag' ])
+
             fsdevLines += fsdevProps + deviceProps
         return fsdevLines
-
 
     def _getChardevLines( self ):
         """Returns the lines corresponding to chardevs"""
@@ -131,9 +135,9 @@ class VmConfigLoader( object ):
             self.vmConfigData = json.load( f )
             print self.vmConfigData
 
-    def _createVmConfigs( self ):
+    def createVmConfigs( self ):
         for i in xrange( self.vmConfigData[ 'range_low' ],
-                         self.vmConfigData[ 'range_high' ] ):
+                         self.vmConfigData[ 'range_high' ] + 1 ):
             config = VmConfig( self.vmConfigData, i )
             self.vmConfigs.append( config )
 
