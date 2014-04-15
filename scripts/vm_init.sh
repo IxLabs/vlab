@@ -19,6 +19,8 @@ info "Running init script"
 
 info "First arg is " $1
 
+info "Setting hostname as ${uts}"
+
 hostname ${uts}
 # Set path
 export TERM=screen
@@ -37,22 +39,22 @@ info 'Mounting sysfs ...'
 mount -n -t sysfs sys /sys
 
 info 'Mounting root overlayshare ...'
-mkdir /tmp/vmroot
+mkdir -p /tmp/vmroot
 mount -t 9p overlayshare /tmp/vmroot -o trans=virtio,version=9p2000.L,access=0,rw
 
 info 'Mounting home dir on /root ...'
 # Mount home dir on /root
-#mkdir /tmp/vmroot/root
+mkdir -p /tmp/vmroot/root
 mount -o bind /tmp/vmroot/root /root
 
 info 'Mounting /etc ...'
 # Mount /etc
-#mkdir /tmp/vmroot/etc
+mkdir -p /tmp/vmroot/etc
 mount -o bind /tmp/vmroot/etc /etc
 
 info 'Mounting kernel modules ...'
 # Mount kernel modules
-#mkdir /tmp/kernel
+mkdir -p /tmp/kernel
 mount -t 9p kernelshare /tmp/kernel -o trans=virtio,version=9p2000.L,access=0,rw
 mount -o bind /tmp/kernel/lib/modules /lib/modules
 

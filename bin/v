@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+"""
+vLab runner
+"""
+import time
+
+from vlab.vlab import Vlab
+
+if __name__ == "__main__":
+    lab = Vlab()
+    lab.startAll()
+    while True:
+        time.sleep(1000)
