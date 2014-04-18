@@ -20,14 +20,12 @@ info "Running init script"
 info "First arg is " $1
 
 info "Setting hostname as ${uts}"
-
 hostname ${uts}
+
 # Set path
-export TERM=screen
-info "Exported TERM: $TERM"
 export HOME=/root
 info "Exported HOME: $HOME"
-export PATH=/bin:/usr/local/bin:/usr/bin:/sbin:/usr/local/sbin:/usr/sbin:$HOME/bin
+export PATH=$HOME/bin:/bin:/usr/local/bin:/usr/bin:/sbin:/usr/local/sbin:/usr/sbin
 info "Exported PATH: $PATH"
 
 # Set overlayfs
@@ -61,7 +59,7 @@ mount -o bind /tmp/kernel/lib/modules /lib/modules
 # Clean /tmp and /run
 for fs in /run /var/run /var/tmp /var/log; do
 	info "Mounting ${fs}"
-	mount -t tmpfs tmpfs $fs -o rw,nosuid,nodev
+	mount -t tmpfs tmpfs ${fs} -o rw,nosuid,nodev
 done
 
 # Execute shell
