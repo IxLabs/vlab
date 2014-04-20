@@ -61,6 +61,12 @@
       "mount_tag": "kernelshare",
       "device_id": "fs-kernel",
       "device_type": "virtio-9p-pci"
+    },
+    {
+      "dev": "netdev",
+      "type": "tap",
+      "id": "management0",
+      "device_type": "virtio-net-pci"
     }
   ]
 }

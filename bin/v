@@ -10,5 +10,9 @@ from vlab.vlab import Vlab
 if __name__ == "__main__":
     lab = Vlab()
     lab.startAll()
-    while True:
-        time.sleep(1000)
+
+    print 'Lab started.'
+    for i in xrange(100, 0, -1):
+        print("Lab stopping in {} seconds".format(str(i)))
+        time.sleep(1)
+    lab.stopAll()

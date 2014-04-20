@@ -57,11 +57,26 @@ mount -t 9p kernelshare /tmp/kernel -o trans=virtio,version=9p2000.L,access=0,rw
 mount -o bind /tmp/kernel/lib/modules /lib/modules
 
 # Clean /tmp and /run
+info "Clean out /tmp and /run directories..."
 for fs in /run /var/run /var/tmp /var/log; do
 	info "Mounting ${fs}"
 	mount -t tmpfs tmpfs ${fs} -o rw,nosuid,nodev
 done
 
-# Execute shell
-info "Executing ${SHELL}"
-exec ${SHELL}
+info "Setup network interfaces ..."
+for intf in /sys/class/net/*; do
+	intf=$(basename ${intf})
+	ip a s dev ${intf} &> /dev/null || continue
+	case ${intf} in
+		lo|eth*|dummy*)
+			ip link set up dev ${intf}
+			;;
+	esac
+done
+
+# Spawn a hell
+while true; do
+	info "Spawning ${SHELL}"
+	cd ${HOME}
+	${SHELL} -i
+done

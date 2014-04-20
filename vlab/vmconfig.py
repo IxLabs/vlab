@@ -15,8 +15,13 @@ class VmConfig( object ):
     """Holds data necessary to start a VM"""
 
     def __init__( self, configData, vmIndex ):
-        """configData: Dict containing the info from the vm config file
-           vmIndex: Index of this VmConfig object"""
+        """Creates VmConfig object.
+
+        :param configData: Dict containing the info from the vm config file
+        :type configData: dict
+        :param vmIndex: Index of this VmConfig object
+        :type vmIndex: int
+        """
         self.vmIndex = vmIndex
         self.vmName = configData[ 'base_name' ] + str( self.vmIndex )
         self.qemuBinary = configData[ 'qemu_binary' ]
@@ -27,13 +32,20 @@ class VmConfig( object ):
             configData[ 'kernel_image' ][ 'init_params' ] )
         self.properties = list( configData[ 'properties' ] )
 
-    def getCommandline( self ):
+    def getCommandline( self, mgmtTapName ):
+        """Gets the command line needed for starting up the VM
+
+        :param mgmtTapName: The name of the TAP interface created on host
+        :type mgmtTapName: str
+        :return: the command line required to run Qemu
+        :rtype: str
+        """
         directory = '/tmp/' + self.vmName
         if not os.path.exists( directory ):
             os.makedirs( directory )
         return (self.qemuBinary + ' -m ' + self.maxRam +
                 self._getChardevLines( ) + self._getFsdevLines( ) +
-                self._getKernelLine( ))
+                self._getKernelLine( ) + self._getMgmtIntfLine( mgmtTapName ))
 
     def _getFsdevLines( self ):
         """Returns the lines corresponding to fsdevs"""
@@ -110,6 +122,16 @@ class VmConfig( object ):
         """Returns the arguments that will be transmitted to the init script"""
         return ' ' + self.vmName
 
+    def _getMgmtIntfLine( self, mgmtTapName ):
+        """Returns the line corresponding with the management netdev
+        interface"""
+        mgmtProp = next(
+            (prop for prop in self.properties if prop[ 'dev' ] == 'netdev'),
+            None )
+        return (' -netdev type=' + mgmtProp[ 'type' ] + ',id=' +
+                mgmtProp[ 'id' ] + ',ifname=' + mgmtTapName + ' -device ' +
+                mgmtProp[ 'device_type' ] + ',netdev=' + mgmtProp[ 'id' ])
+
     @staticmethod
     def _getFullPath( fileName ):
         p = subprocess.Popen( [ 'readlink', '-f', fileName ], stdout=subprocess
@@ -123,23 +145,34 @@ class VmConfigLoader( object ):
 
     def __init__( self, vmFile='../configs/vm.json',
                   topoFile='../configs/simple.json' ):
-        """vmFile: File where the configs related to Qemu are found
-           topoFile: File where configs related to topology are found"""
+        """Create the VmConfigLoader given two config files
+
+        :param vmFile: File where the configs related to Qemu are found
+        :type vmFile: str
+        :param topoFile: File where configs related to topology are found
+        :type topoFile: str
+        """
         self.vmFile = vmFile
         self.topoFile = topoFile
         self.vmConfigData = {}
         self.vmConfigs = [ ]
 
     def readConfig( self ):
+        """Reads the config files and stores them accordingly"""
         with open( self.vmFile, 'r' ) as f:
             self.vmConfigData = json.load( f )
             print self.vmConfigData
 
     def createVmConfigs( self ):
+        """Generates the VmConfigs"""
         for i in xrange( self.vmConfigData[ 'range_low' ],
                          self.vmConfigData[ 'range_high' ] + 1 ):
             config = VmConfig( self.vmConfigData, i )
             self.vmConfigs.append( config )
 
     def getConfigs( self ):
+        """Gets the list of the VmConfigs. Note: createVmConfigs must be
+        :return A list of VmConfigs
+        :rtype list(VmConfig)
+        """
         return self.vmConfigs
