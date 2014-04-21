@@ -26,14 +26,16 @@ class VmHandler( object ):
         """Starts the VM. Handles the creation of tap interfaces as well"""
         self.tap = self._createTapIntf( )
         cmd = self.config.getCommandline( self.tap )
-        print 'Running ' + cmd
-        self.vmProcess = subprocess.Popen( cmd, shell=True )
-        print 'Process is ' + str(self.vmProcess.pid)
+        print 'DEBUG: cmd=' + str( cmd )
+        print 'Running ' + ' '.join( cmd )
+        self.vmProcess = subprocess.Popen( cmd )
+        print 'Process is ' + str( self.vmProcess.pid )
         self.started = True
 
     def stopVm( self ):
         """Stops the VM. Also removes the created tap interfaces"""
-        self.vmProcess.kill( )
+        self.vmProcess.terminate( )
+        self.vmProcess.wait( )
         self._removeTapIntf( self.tap )
         self.tap = ''
         self.started = False
@@ -60,8 +62,7 @@ class VmHandler( object ):
         :return: The name of the newly created TAP interface
         :rtype: str
         """
-        p = subprocess.Popen( [ 'tunctl', '-b' ], stdout=subprocess
-                              .PIPE )
+        p = subprocess.Popen( [ 'tunctl', '-b' ], stdout=subprocess.PIPE )
         output, err = p.communicate( )
         return output[ 0:-1 ]
 

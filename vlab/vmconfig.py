@@ -37,19 +37,19 @@ class VmConfig( object ):
 
         :param mgmtTapName: The name of the TAP interface created on host
         :type mgmtTapName: str
-        :return: the command line required to run Qemu
-        :rtype: str
+        :return: the command line required to run Qemu as list of strings
+        :rtype: list(str)
         """
         directory = '/tmp/' + self.vmName
         if not os.path.exists( directory ):
             os.makedirs( directory )
-        return (self.qemuBinary + ' -m ' + self.maxRam +
+        return ([ self.qemuBinary, '-m', str( self.maxRam ) ] +
                 self._getChardevLines( ) + self._getFsdevLines( ) +
                 self._getKernelLine( ) + self._getMgmtIntfLine( mgmtTapName ))
 
     def _getFsdevLines( self ):
         """Returns the lines corresponding to fsdevs"""
-        fsdevLines = ''
+        fsdevLines = [ ]
         for prop in self.properties:
             if prop[ 'dev' ] != 'fsdev':
                 continue
@@ -66,23 +66,23 @@ class VmConfig( object ):
                 security_model = 'passthrough'
                 readonly = ',readonly'
 
-            fsdevProps = (' -fsdev local,security_model=' + security_model
-                          + ',id=' + prop[ 'id' ] + ',path=' + path + readonly)
-            deviceProps = (' -device ' + prop[ 'device_type' ] +
-                           ',fsdev=' + prop[ 'id' ] +
-                           ',mount_tag=' + prop[ 'mount_tag' ])
-
-            fsdevLines += fsdevProps + deviceProps
+            fsdevLines += [ '-fsdev',
+                            ('local,security_model=' + security_model +
+                             ',id=' + prop[ 'id' ] + ',path=' + path +
+                             readonly) ]
+            fsdevLines += [ '-device',
+                            (prop[ 'device_type' ] + ',fsdev=' + prop[ 'id' ] +
+                             ',mount_tag=' + prop[ 'mount_tag' ]) ]
         return fsdevLines
 
     def _getChardevLines( self ):
         """Returns the lines corresponding to chardevs"""
-        chardevLines = ''
+        chardevLines = [ ]
         for prop in self.properties:
             if prop[ 'dev' ] != 'chardev':
                 continue
 
-            chardevProps = ' chardev'
+            chardevProps = 'chardev'
             path = '/tmp/' + self.vmName
             if prop[ 'id' ] == 'mgmt':
                 chardevProps += ':mgmt'
@@ -91,24 +91,28 @@ class VmConfig( object ):
                 chardevProps += '=monitor,mode=readline,default'
                 path += '/vm-monitor-console.socket'
 
-            chardevLines += (' -chardev socket,id=' +
-                             prop[ 'id' ] + ',path=' + path + ',server,nowait' +
-                             ' -' + prop[ 'type' ] + chardevProps)
+            chardevLines += [ '-chardev',
+                              ('socket,id=' + prop[ 'id' ] + ',path=' + path +
+                               ',server,nowait'),
+                              '-' + prop[ 'type' ],
+                              chardevProps ]
         return chardevLines
 
     def _getKernelLine( self ):
         """Returns the kernel parameters line"""
-        return (' -kernel ' + self.kernelDir + '/' + self.kernelImageName +
-                ' -append "init=' +
-                self._getFullPath( self.kernelInitParams[ 'init' ] ) +
-                ' console=tty0' +
-                ' console=' + self.kernelInitParams[ 'console' ] +
-                ' uts=' + self.vmName +
-                ' root=/dev/root' +
-                self._getRootFlags( ) +
-                ' ' + self.kernelInitParams[ 'mode' ] +
-                ' rootfstype=' + self.kernelInitParams[ 'rootfstype' ] +
-                ' ' + self._getInitScriptArgs( ) + '"')
+        return [ '-kernel',
+                 self.kernelDir + '/' + self.kernelImageName,
+                 '-append',
+                 ('init=' +
+                  self._getFullPath( self.kernelInitParams[ 'init' ] ) +
+                  ' console=tty0' +
+                  ' console=' + self.kernelInitParams[ 'console' ] +
+                  ' uts=' + self.vmName +
+                  ' root=/dev/root' +
+                  self._getRootFlags( ) +
+                  ' ' + self.kernelInitParams[ 'mode' ] +
+                  ' rootfstype=' + self.kernelInitParams[ 'rootfstype' ] +
+                  ' ' + self._getInitScriptArgs( ) ) ]
 
     def _getRootFlags( self ):
         """Returns the rootflags sent to kernel init"""
@@ -120,7 +124,7 @@ class VmConfig( object ):
 
     def _getInitScriptArgs( self ):
         """Returns the arguments that will be transmitted to the init script"""
-        return ' ' + self.vmName
+        return self.vmName
 
     def _getMgmtIntfLine( self, mgmtTapName ):
         """Returns the line corresponding with the management netdev
@@ -128,9 +132,11 @@ class VmConfig( object ):
         mgmtProp = next(
             (prop for prop in self.properties if prop[ 'dev' ] == 'netdev'),
             None )
-        return (' -netdev type=' + mgmtProp[ 'type' ] + ',id=' +
-                mgmtProp[ 'id' ] + ',ifname=' + mgmtTapName + ' -device ' +
-                mgmtProp[ 'device_type' ] + ',netdev=' + mgmtProp[ 'id' ])
+        return [ '-netdev',
+                 ('type=' + mgmtProp[ 'type' ] + ',id=' +
+                  mgmtProp[ 'id' ] + ',ifname=' + mgmtTapName),
+                 '-device',
+                 mgmtProp[ 'device_type' ] + ',netdev=' + mgmtProp[ 'id' ] ]
 
     @staticmethod
     def _getFullPath( fileName ):
