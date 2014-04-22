@@ -47,6 +47,10 @@ class VmConfig( object ):
                 self._getChardevLines( ) + self._getFsdevLines( ) +
                 self._getKernelLine( ) + self._getMgmtIntfLine( mgmtTapName ))
 
+    def getVmIndex( self ):
+        """Returns the index of this VM"""
+        return self.vmIndex
+
     def _getFsdevLines( self ):
         """Returns the lines corresponding to fsdevs"""
         fsdevLines = [ ]
@@ -56,9 +60,8 @@ class VmConfig( object ):
 
             path = prop[ 'path' ]
             if prop[ 'id' ] == 'fsdev-home':
-                path += '/' + self.vmName
                 if not os.path.exists( path ):
-                    os.makedirs( path )
+                    raise IOError( 'Vmrootfs folder does not exist: %s' % path )
 
             security_model = 'none'
             readonly = ''
@@ -124,7 +127,7 @@ class VmConfig( object ):
 
     def _getInitScriptArgs( self ):
         """Returns the arguments that will be transmitted to the init script"""
-        return self.vmName
+        return str( self.vmIndex )
 
     def _getMgmtIntfLine( self, mgmtTapName ):
         """Returns the line corresponding with the management netdev

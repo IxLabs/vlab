@@ -25,6 +25,8 @@ class VmHandler( object ):
     def startVm( self ):
         """Starts the VM. Handles the creation of tap interfaces as well"""
         self.tap = self._createTapIntf( )
+        self._setMgmtTapIp( )
+
         cmd = self.config.getCommandline( self.tap )
         print 'DEBUG: cmd=' + str( cmd )
         print 'Running ' + ' '.join( cmd )
@@ -70,3 +72,8 @@ class VmHandler( object ):
     def _removeTapIntf( tapName ):
         """Remove the tap interface from host"""
         subprocess.call( [ 'tunctl', '-d', tapName ] )
+
+    def _setMgmtTapIp( self ):
+        """Sets ip on tap linked to management interface"""
+        ip = '10.0.' + str( self.config.getVmIndex( ) ) + '.1/24'
+        subprocess.call( [ 'ip', 'addr', 'add', ip, 'dev', self.tap ] )

@@ -17,7 +17,8 @@ error() {
 
 info "Running init script"
 
-info "First arg is " $1
+info "Index of VM is " $1
+VM_INDEX=$1
 
 info "Setting hostname as ${uts}"
 hostname ${uts}
@@ -73,6 +74,18 @@ for intf in /sys/class/net/*; do
 			;;
 	esac
 done
+
+# Mount devpts for remote logints
+mkdir -p /dev/pts
+mount -t devpts none /dev/pts
+
+# Set ip address on management interface (it should always be eth0)
+# The corresponding TAP on host machine should have ip 10.0.${VM_INDEX}.1/24
+ip addr add 10.0.${VM_INDEX}.2/24 dev eth0
+
+info "Starting dropbear server ..."
+# Run dropbear with option -E to log errors to stderr
+dropbear -E
 
 # Spawn a hell
 while true; do

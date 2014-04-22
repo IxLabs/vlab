@@ -48,7 +48,7 @@
       "dev": "fsdev",
       "type": "device",
       "id": "fsdev-home",
-      "path": "/home/costash/workspace/vm_homes",
+      "path": "/home/costash/workspace/vm_homes/vmrootfs",
       "mount_tag": "overlayshare",
       "device_id": "fs-home",
       "device_type": "virtio-9p-pci"
