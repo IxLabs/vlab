@@ -3,16 +3,15 @@
 """
 vLab runner
 """
-import time
 
 from vlab.vlab import Vlab
+from vlab.cli import CLI
 
 if __name__ == "__main__":
     lab = Vlab()
-    lab.startAll()
 
-    print 'Lab started.'
-    for i in xrange(100, 0, -1):
-        print("Lab stopping in {} seconds".format(str(i)))
-        time.sleep(1)
-    lab.stopAll()
+    print('vLab started.\n')
+    try:
+        CLI(lab)
+    except KeyboardInterrupt:
+        print("\nKeyboard Interrupt. Quiting...\n\n")
