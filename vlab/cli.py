@@ -77,6 +77,7 @@ class CLI( Cmd ):
 
     def do_exit( self, _line ):
         """Exit"""
+        self.vlab.stopAll()
         return 'Exited by user input'
 
     def do_quit( self, line ):
