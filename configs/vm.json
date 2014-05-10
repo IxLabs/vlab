@@ -68,6 +68,12 @@
       "type": "tap",
       "id": "management0",
       "device_type": "virtio-net-pci"
+    },
+    {
+      "dev": "netdev",
+      "type": "tap",
+      "id":   "net",
+      "device_type": "virtio-net-pci"
     }
   ]
 }

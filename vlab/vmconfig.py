@@ -15,7 +15,7 @@ import shlex
 class VmConfig( object ):
     """Holds data necessary to start a VM"""
 
-    def __init__( self, configData, vmIndex ):
+    def __init__( self, configData, hostConfig, vmIndex ):
         """Creates VmConfig object.
 
         :param configData: Dict containing the info from the vm config file
@@ -33,6 +33,7 @@ class VmConfig( object ):
         self.kernelInitParams = dict(
             configData[ 'kernel_image' ][ 'init_params' ] )
         self.properties = list( configData[ 'properties' ] )
+        self.host = hostConfig
 
     def getCommandline( self, mgmtTapName ):
         """Gets the command line needed for starting up the VM
@@ -151,6 +152,14 @@ class VmConfig( object ):
                  '-device',
                  mgmtProp[ 'device_type' ] + ',netdev=' + mgmtProp[ 'id' ] ]
 
+    def getNetworkInterface(self, tapName):
+        net = next(
+            (prop for prop in self.properties if prop[ 'id' ] == 'net'),
+            None )
+        netdev = net['id'] + tapName
+        return ["netdev_add " + net['type'] + ",id=" + netdev,
+                "device_add " + net['device_type'] + ",netdev=" + netdev]
+
     @staticmethod
     def _getFullPath( fileName ):
         p = subprocess.Popen( [ 'readlink', '-f', fileName ], stdout=subprocess
@@ -176,6 +185,8 @@ class VmConfigLoader( object ):
         self.vmConfigData = {}
         self.vmConfigs = [ ]
         self.topoConfigData = {}
+        self.hostNames = []
+        self.switchNames = []
 
     def readConfig( self ):
         """Reads the config files and stores them accordingly"""
@@ -186,11 +197,39 @@ class VmConfigLoader( object ):
         with open( self.topoFile, 'r' ) as f:
             self.topoConfigData = json.load( f )
 
+        for host in self.topoConfigData[ 'hosts' ]:
+            self.hostNames.append( host[ 'opts' ][ 'hostname' ] )
+
+        for switch in self.topoConfigData[ 'switches' ]:
+            self.switchNames.append( switch[ 'opts' ][ 'hostname' ] )
+
     def createVmConfigs( self ):
         """Generates the VmConfigs"""
+
+        links = {}
+        for link in self.topoConfigData[ 'links' ]:
+            src = link[ 'src' ]
+            dst = link[ 'dest' ]
+            if not src in links:
+                links[src] = [link]
+            else:
+                links[src].append(link)
+
+            if not dst in links:
+                links[dst] = [link]
+            else:
+                links[dst].append(link)
+
+
         for i in xrange( self.vmConfigData[ 'range_low' ],
                          self.vmConfigData[ 'range_high' ] + 1 ):
-            config = VmConfig( self.vmConfigData, i )
+            hostData = self.topoConfigData['hosts'][i - self.vmConfigData[ 'range_low' ]]
+            hostname = hostData[ 'opts' ][ 'hostname' ]
+            hostConfig = {'options': hostData[ 'opts' ], 'links': links[hostname] }
+
+            print(hostConfig)
+
+            config = VmConfig( self.vmConfigData, hostConfig, i )
             self.vmConfigs.append( config )
 
     def getConfigs( self ):
@@ -202,3 +241,9 @@ class VmConfigLoader( object ):
 
     def getTopoConfig( self ):
         return self.topoConfigData
+
+    def getSwitchNames(self):
+        return self.switchNames
+
+    def getHostNames(self):
+        return self.hostNames

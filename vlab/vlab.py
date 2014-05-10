@@ -47,6 +47,12 @@ class Vlab( object ):
             message = client.recv(128)
             client.close()
 
+            msgparams = message.split(" ")
+            vmname = msgparams[0]
+            for vm in self.vmHandlers:
+                if vm.getVmName() == vmname:
+                    vm.configure()
+
             print message,
 
     def stopAll( self ):
