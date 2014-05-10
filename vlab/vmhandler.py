@@ -5,6 +5,7 @@ VmHandler is used by Nodes for interacting with a Qemu VM.
 import subprocess
 
 from vmconfig import VmConfig
+from util import ssh_setup
 
 
 class VmHandler( object ):
@@ -21,6 +22,7 @@ class VmHandler( object ):
         self.tap = ''
         self.started = False
         self.vmProcess = None
+        self.mgmtIp = self._generateMgmtIp( )
 
     def startVm( self ):
         """Starts the VM. Handles the creation of tap interfaces as well"""
@@ -45,6 +47,17 @@ class VmHandler( object ):
     def isStarted( self ):
         """Returns whether the VM is currently started or not"""
         return self.started
+
+    def sendCmd( self, line ):
+        """Sends a command to host to be executed"""
+        c = ssh_setup( )
+        c.connect( self.mgmtIp, username='root' )
+        line = 'source ~/.bashrc; ' + line
+        stdin, stdout, stderr = c.exec_command( line )
+        out_lines = stdout.readlines( )
+        err_lines = stderr.readlines( )
+        c.close( )
+        return out_lines, err_lines
 
     def screenAttachMonitor( self ):
         pass
@@ -77,3 +90,7 @@ class VmHandler( object ):
         """Sets ip on tap linked to management interface"""
         ip = '10.0.' + str( self.config.getVmIndex( ) ) + '.1/24'
         subprocess.call( [ 'ip', 'addr', 'add', ip, 'dev', self.tap ] )
+
+    def _generateMgmtIp( self ):
+        """Generates the ip of the management interface"""
+        return '10.0.' + str( self.config.getVmIndex( ) ) + '.2'
