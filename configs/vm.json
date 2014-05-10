@@ -5,6 +5,7 @@
   "qemu_binary": "qemu-system-x86_64",
   "max_ram": "128m",
   "base_name": "VM-test",
+  "misc_params": " -machine type=pc,accel=kvm",
   "kernel_image": {
     "dir": "/home/costash/linux_3.12_built",
     "image_name": "linux",

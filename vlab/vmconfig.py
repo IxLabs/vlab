@@ -9,7 +9,7 @@ file
 import json
 import subprocess
 import os
-
+import shlex
 
 class VmConfig( object ):
     """Holds data necessary to start a VM"""
@@ -25,6 +25,7 @@ class VmConfig( object ):
         self.vmIndex = vmIndex
         self.vmName = configData[ 'base_name' ] + str( self.vmIndex )
         self.qemuBinary = configData[ 'qemu_binary' ]
+        self.miscParams = configData[ 'misc_params' ]
         self.maxRam = configData[ 'max_ram' ]
         self.kernelDir = configData[ 'kernel_image' ][ 'dir' ]
         self.kernelImageName = configData[ 'kernel_image' ][ 'image_name' ]
@@ -43,13 +44,16 @@ class VmConfig( object ):
         directory = '/tmp/' + self.vmName
         if not os.path.exists( directory ):
             os.makedirs( directory )
-        return ([ self.qemuBinary, '-m', str( self.maxRam ) ] +
+        return ([ self.qemuBinary, '-m', str( self.maxRam ) ] + self._getMiscParams() +
                 self._getChardevLines( ) + self._getFsdevLines( ) +
                 self._getKernelLine( ) + self._getMgmtIntfLine( mgmtTapName ))
 
     def getVmIndex( self ):
         """Returns the index of this VM"""
         return self.vmIndex
+
+    def _getMiscParams( self ):
+        return shlex.split(self.miscParams)
 
     def _getFsdevLines( self ):
         """Returns the lines corresponding to fsdevs"""
