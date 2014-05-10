@@ -23,6 +23,8 @@ class Vlab( object ):
         self.switches = [ ]
 
         self.startBootListener()
+        self.nameToNode = {}
+
         self.initConfigs( )
 
     def startBootListener( self ):
@@ -66,7 +68,9 @@ class Vlab( object ):
     def _createVmHandlers( self ):
         """Creates the VmHandler instances for each VmConfig"""
         for config in self.configs:
-            self.vmHandlers.append( VmHandler( config ) )
+            vmHandler = VmHandler( config )
+            self.vmHandlers.append( vmHandler )
+            self.nameToNode[ config.getVmName( ) ] = vmHandler
 
     def _createSwitches(self):
         for s in self.topo['switches']:
@@ -90,3 +94,13 @@ class Vlab( object ):
         if self.vmHandlers[ index ].isStarted( ):
             self.vmHandlers[ index ].stopVm( )
 
+    def getVmNames( self ):
+        """Returns a list of all VM names"""
+        return [ config.getVmName( ) for config in self.configs ]
+
+    def getNodeByName( self, name ):
+        """Returns a Node by its name
+        :param name: The name of the node
+        :type name: str
+        """
+        return self.nameToNode[ name ]

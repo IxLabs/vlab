@@ -11,6 +11,7 @@ import subprocess
 import os
 import shlex
 
+
 class VmConfig( object ):
     """Holds data necessary to start a VM"""
 
@@ -44,7 +45,8 @@ class VmConfig( object ):
         directory = '/tmp/' + self.vmName
         if not os.path.exists( directory ):
             os.makedirs( directory )
-        return ([ self.qemuBinary, '-m', str( self.maxRam ) ] + self._getMiscParams() +
+        return ([ self.qemuBinary, '-m', str( self.maxRam ) ] +
+                self._getMiscParams( ) +
                 self._getChardevLines( ) + self._getFsdevLines( ) +
                 self._getKernelLine( ) + self._getMgmtIntfLine( mgmtTapName ))
 
@@ -52,8 +54,12 @@ class VmConfig( object ):
         """Returns the index of this VM"""
         return self.vmIndex
 
+    def getVmName( self ):
+        """Returns the name of this VM"""
+        return self.vmName
+
     def _getMiscParams( self ):
-        return shlex.split(self.miscParams)
+        return shlex.split( self.miscParams )
 
     def _getFsdevLines( self ):
         """Returns the lines corresponding to fsdevs"""
@@ -178,7 +184,7 @@ class VmConfigLoader( object ):
             print self.vmConfigData
 
         with open( self.topoFile, 'r' ) as f:
-            self.topoConfigData = json.load(f)
+            self.topoConfigData = json.load( f )
 
     def createVmConfigs( self ):
         """Generates the VmConfigs"""
@@ -194,5 +200,5 @@ class VmConfigLoader( object ):
         """
         return self.vmConfigs
 
-    def getTopoConfig(self):
+    def getTopoConfig( self ):
         return self.topoConfigData

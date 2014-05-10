@@ -59,6 +59,10 @@ class VmHandler( object ):
         c.close( )
         return out_lines, err_lines
 
+    def getMgmtIp( self ):
+        """Returns the management interface's ip"""
+        return self.mgmtIp
+
     def screenAttachMonitor( self ):
         pass
 

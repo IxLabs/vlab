@@ -6,7 +6,7 @@ This CLI permits simple commands like:
 vlab> h2 ip a s
 """
 
-from cmd import Cmd
+from cmd import Cmd, IDENTCHARS
 from os import isatty
 from util import run
 import sys
@@ -18,6 +18,7 @@ class CLI( Cmd ):
     """Simple Command-line interface to communicate with nodes."""
 
     prompt = 'vLab> '
+    identchars = IDENTCHARS + '-'
 
     def __init__( self, vlab, stdin=sys.stdin ):
         """Instantiates a CLI object
@@ -77,7 +78,7 @@ class CLI( Cmd ):
 
     def do_exit( self, _line ):
         """Exit"""
-        self.vlab.stopAll()
+        self.vlab.stopAll( )
         return 'Exited by user input'
 
     def do_quit( self, line ):
@@ -91,10 +92,43 @@ class CLI( Cmd ):
 
     def do_startAll( self, line ):
         """Start All VMs"""
-        self.vlab.startAll()
+        self.vlab.startAll( )
         print('Starting all\n')
 
     def do_stopAll( self, line ):
         """Stop All VMs"""
-        self.vlab.stopAll()
+        self.vlab.stopAll( )
         print('Stopping all\n')
+
+    def do_startVmAt( self, line ):
+        """Starts one VM"""
+        # TODO: Add sanity checks
+        self.vlab.startVmAt( int( line ) - 1 )
+
+    def do_stopVmAt( self, line ):
+        """Stops one VM"""
+        # TODO: Add sanity checks
+        self.vlab.stopVmAt( int( line ) - 1 )
+
+    def default( self, line ):
+        """Called on an input line when the command prefix is not recognized.
+        Overridden to run shell commands when a node is the first CLI argument.
+        """
+
+        first, args, line = self.parseline( line )
+
+        print("DEBUG: first: %s args: %s " % (first, args))
+
+        if not first in self.vlab.getVmNames( ):
+            print( '*** Unknown command: %s\n' % line )
+        else:
+            if not args:
+                print "*** Enter a command for node: %s <cmd>" % first
+
+            node = self.vlab.getNodeByName( first )
+
+            out_lines, err_lines = node.sendCmd( args )
+            for ln in out_lines:
+                print ln,
+            for ln in err_lines:
+                print ln,
