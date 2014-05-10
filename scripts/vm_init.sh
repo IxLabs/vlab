@@ -87,6 +87,9 @@ info "Starting dropbear server ..."
 # Run dropbear with option -E to log errors to stderr
 dropbear -E
 
+# Notify host that we have finished booting
+echo "$(hostname) booted!" | nc 10.0.${VM_INDEX}.1 20000
+
 # Spawn a hell
 while true; do
 	info "Spawning ${SHELL}"

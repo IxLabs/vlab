@@ -6,10 +6,12 @@ It instantiates VmConfigLoader and creates the nodes that are then started
 
 from vmconfig import VmConfigLoader, VmConfig
 from vmhandler import VmHandler
-
+import socket
 
 class Vlab( object ):
     """Network emulation with hosts spawned in Qemu"""
+    LISTEN_PORT = 20000
+    BACKLOG = 10
 
     def __init__( self ):
         self.vmConfigLoader = VmConfigLoader( )
@@ -17,12 +19,28 @@ class Vlab( object ):
         self.vmHandlers = [ ]
         self.hosts = [ ]
 
+        self.startBootListener()
         self.initConfigs( )
+
+    def startBootListener( self ):
+        self.notifysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.notifysocket.bind(('0.0.0.0', Vlab.LISTEN_PORT))
+        self.notifysocket.listen(Vlab.BACKLOG)
 
     def startAll( self ):
         """Start All the VMs"""
         for i in xrange( len( self.configs ) ):
             self.startVmAt( i )
+
+        booted = 0
+        while booted < len( self.configs ):
+            client, addr = self.notifysocket.accept()
+            booted = booted + 1
+
+            message = client.recv(128)
+            client.close()
+
+            print message,
 
     def stopAll( self ):
         """Stop All the VMs"""
