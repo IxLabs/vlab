@@ -4,7 +4,7 @@ Node objects for vLab
 A Node can be seen as an abstraction for a node in a network topology. It can be
 a Host, a Switch or something.
 """
-
+from util import run
 
 class Node( object ):
     """A virtual network node is the abstraction of a network node."""
@@ -30,13 +30,19 @@ class Switch( Node ):
 
     def __init__(self, s):
         Node.__init__( self )
-        pass
+        self.switch = s
+
+    def getHostname(self):
+        return self.switch['opts']['hostname']
 
     def startVm(self):
-        print 'Starting switch'
+        print 'Starting switch ' + self.getHostname()
+        cmd = "brctl addbr " + self.getHostname()
+        run(cmd)
 
     def stopVm(self):
-        print 'Stopping switch'
+        print 'Stopping switch ' + self.getHostname()
+        cmd = "brctl delbr " + self.getHostname()
 
 class Host( Node ):
     """A Host is actually a node that runs in a Qemu VM"""
