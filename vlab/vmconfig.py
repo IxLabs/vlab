@@ -153,7 +153,7 @@ class VmConfigLoader( object ):
     """Loads config from file and stores it in a dict to be used in VmHandler"""
 
     def __init__( self, vmFile='../configs/vm.json',
-                  topoFile='../configs/simple.json' ):
+                  topoFile='../configs/topo.json' ):
         """Create the VmConfigLoader given two config files
 
         :param vmFile: File where the configs related to Qemu are found
@@ -165,12 +165,16 @@ class VmConfigLoader( object ):
         self.topoFile = topoFile
         self.vmConfigData = {}
         self.vmConfigs = [ ]
+        self.topoConfigData = {}
 
     def readConfig( self ):
         """Reads the config files and stores them accordingly"""
         with open( self.vmFile, 'r' ) as f:
             self.vmConfigData = json.load( f )
             print self.vmConfigData
+
+        with open( self.topoFile, 'r' ) as f:
+            self.topoConfigData = json.load(f)
 
     def createVmConfigs( self ):
         """Generates the VmConfigs"""
@@ -185,3 +189,6 @@ class VmConfigLoader( object ):
         :rtype list(VmConfig)
         """
         return self.vmConfigs
+
+    def getTopoConfig(self):
+        return self.topoConfigData
