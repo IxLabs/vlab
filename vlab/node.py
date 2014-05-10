@@ -6,6 +6,7 @@ a Host, a Switch or something.
 """
 from util import run
 
+
 class Node( object ):
     """A virtual network node is the abstraction of a network node."""
 
@@ -28,21 +29,23 @@ class Node( object ):
 class Switch( Node ):
     """A switch is basically a bridge"""
 
-    def __init__(self, s):
+    def __init__( self, s ):
         Node.__init__( self )
         self.switch = s
 
-    def getHostname(self):
-        return self.switch['opts']['hostname']
+    def getHostname( self ):
+        return self.switch[ 'opts' ][ 'hostname' ]
 
-    def startVm(self):
-        print 'Starting switch ' + self.getHostname()
-        cmd = "brctl addbr " + self.getHostname()
-        run(cmd)
+    def startVm( self ):
+        print 'Starting switch ' + self.getHostname( )
+        cmd = "brctl addbr " + self.getHostname( )
+        run( cmd )
 
-    def stopVm(self):
-        print 'Stopping switch ' + self.getHostname()
-        cmd = "brctl delbr " + self.getHostname()
+    def stopVm( self ):
+        print 'Stopping switch ' + self.getHostname( )
+        cmd = "brctl delbr " + self.getHostname( )
+        run( cmd )
+
 
 class Host( Node ):
     """A Host is actually a node that runs in a Qemu VM"""
