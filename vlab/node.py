@@ -28,10 +28,15 @@ class Node( object ):
 class Switch( Node ):
     """A switch is basically a bridge"""
 
-    def __init__( self ):
+    def __init__(self, s):
         Node.__init__( self )
         pass
 
+    def startVm(self):
+        print 'Starting switch'
+
+    def stopVm(self):
+        print 'Stopping switch'
 
 class Host( Node ):
     """A Host is actually a node that runs in a Qemu VM"""
