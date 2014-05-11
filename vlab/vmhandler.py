@@ -7,6 +7,7 @@ import socket
 from vmconfig import VmConfig
 from util import ssh_setup
 
+
 class VmHandler( object ):
     """A VmHandler provides primitives for handling a Qemu VM."""
 
@@ -43,13 +44,13 @@ class VmHandler( object ):
         self._removeTapIntf( self.tap )
         self.tap = ''
         self.started = False
-        self.cleanInterfaces()
+        self.cleanInterfaces( )
 
     def isStarted( self ):
         """Returns whether the VM is currently started or not"""
         return self.started
 
-    def getVmName(self):
+    def getVmName( self ):
         return self.config.vmName
 
     def sendCmd( self, line ):
@@ -69,31 +70,31 @@ class VmHandler( object ):
         return self.mgmtIp
 
     def configureInterface( self, link ):
-        tap = VmHandler._createTapIntf()
+        tap = VmHandler._createTapIntf( )
         self.testInterfaces[ tap ] = link
-        netdev, device = self.config.getNetworkInterface(tap)
-        self.monitorSendCmd(netdev)
-        self.monitorSendCmd(device)
-        self.sendCmd("echo 1 > /sys/bus/pci/rescan")
+        netdev, device = self.config.getNetworkInterface( tap )
+        self.monitorSendCmd( netdev )
+        self.monitorSendCmd( device )
+        self.sendCmd( "echo 1 > /sys/bus/pci/rescan" )
         # TODO: set IP in guest
 
     def configure( self ):
         print(self.config.host)
         for link in self.config.host[ 'links' ]:
-            self.configureInterface(link)
+            self.configureInterface( link )
 
-    def cleanInterfaces(self):
+    def cleanInterfaces( self ):
         for intf in self.testInterfaces:
-            VmHandler._removeTapIntf(intf)
+            VmHandler._removeTapIntf( intf )
 
-    def monitorSendCmd(self, Command):
+    def monitorSendCmd( self, Command ):
         path = "/tmp/" + self.config.vmName + "/vm-monitor-console.socket"
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.connect(path)
-        sock.recv(128)
-        sock.send(Command + "\n")
-        response = sock.recv(128)
-        sock.close()
+        sock = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
+        sock.connect( path )
+        sock.recv( 128 )
+        sock.send( Command + "\n" )
+        response = sock.recv( 128 )
+        sock.close( )
         return response
 
     def screenAttachMonitor( self ):

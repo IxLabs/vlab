@@ -10,6 +10,7 @@ from node import Switch
 
 import socket
 
+
 class Vlab( object ):
     """Network emulation with hosts spawned in Qemu"""
     LISTEN_PORT = 20000
@@ -22,36 +23,36 @@ class Vlab( object ):
         self.hosts = [ ]
         self.switches = [ ]
 
-        self.startBootListener()
+        self.startBootListener( )
         self.nameToNode = {}
 
         self.initConfigs( )
 
     def startBootListener( self ):
-        self.notifysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.notifysocket.bind(('0.0.0.0', Vlab.LISTEN_PORT))
-        self.notifysocket.listen(Vlab.BACKLOG)
+        self.notifysocket = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+        self.notifysocket.bind( ('0.0.0.0', Vlab.LISTEN_PORT) )
+        self.notifysocket.listen( Vlab.BACKLOG )
 
     def startAll( self ):
         """Start All the VMs"""
         for i in xrange( len( self.configs ) ):
             self.startVmAt( i )
         for s in self.switches:
-            s.startVm()
+            s.startVm( )
 
         booted = 0
         while booted < len( self.configs ):
-            client, addr = self.notifysocket.accept()
+            client, addr = self.notifysocket.accept( )
             booted = booted + 1
 
-            message = client.recv(128)
-            client.close()
+            message = client.recv( 128 )
+            client.close( )
 
-            msgparams = message.split(" ")
-            vmname = msgparams[0]
+            msgparams = message.split( " " )
+            vmname = msgparams[ 0 ]
             for vm in self.vmHandlers:
-                if vm.getVmName() == vmname:
-                    vm.configure()
+                if vm.getVmName( ) == vmname:
+                    vm.configure( )
 
             print message,
 
@@ -60,16 +61,16 @@ class Vlab( object ):
         for i in xrange( len( self.configs ) ):
             self.stopVmAt( i )
         for s in self.switches:
-            s.stopVm()
+            s.stopVm( )
 
     def initConfigs( self ):
         """Read and init the configs"""
         self.vmConfigLoader.readConfig( )
         self.vmConfigLoader.createVmConfigs( )
         self.configs = self.vmConfigLoader.getConfigs( )
-        self.topo = self.vmConfigLoader.getTopoConfig()
+        self.topo = self.vmConfigLoader.getTopoConfig( )
         self._createVmHandlers( )
-        self._createSwitches()
+        self._createSwitches( )
 
     def _createVmHandlers( self ):
         """Creates the VmHandler instances for each VmConfig"""
@@ -78,10 +79,10 @@ class Vlab( object ):
             self.vmHandlers.append( vmHandler )
             self.nameToNode[ config.getVmName( ) ] = vmHandler
 
-    def _createSwitches(self):
-        for s in self.topo['switches']:
-            switch = Switch(s)
-            self.switches.append(switch)
+    def _createSwitches( self ):
+        for s in self.topo[ 'switches' ]:
+            switch = Switch( s )
+            self.switches.append( switch )
 
     def startVmAt( self, index ):
         """Starts the VM number index
@@ -90,7 +91,6 @@ class Vlab( object ):
         """
         if not self.vmHandlers[ index ].isStarted( ):
             self.vmHandlers[ index ].startVm( )
-
 
     def stopVmAt( self, index ):
         """Stops the VM number index
