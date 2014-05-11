@@ -13,10 +13,10 @@ class Node( object ):
     def __init__( self ):
         pass
 
-    def startVm( self ):
+    def start( self ):
         pass
 
-    def stopVm( self ):
+    def stop( self ):
         pass
 
     def cleanup( self ):
@@ -36,12 +36,12 @@ class Switch( Node ):
     def getHostname( self ):
         return self.switch[ 'opts' ][ 'hostname' ]
 
-    def startVm( self ):
+    def start( self ):
         print 'Starting switch ' + self.getHostname( )
         cmd = "brctl addbr " + self.getHostname( )
         run( cmd )
 
-    def stopVm( self ):
+    def stop( self ):
         print 'Stopping switch ' + self.getHostname( )
         cmd = "brctl delbr " + self.getHostname( )
         run( cmd )

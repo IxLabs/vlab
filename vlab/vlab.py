@@ -38,7 +38,7 @@ class Vlab( object ):
         for i in xrange( len( self.configs ) ):
             self.startVmAt( i )
         for s in self.switches:
-            s.startVm( )
+            s.start( )
 
         booted = 0
         while booted < len( self.configs ):
@@ -61,7 +61,7 @@ class Vlab( object ):
         for i in xrange( len( self.configs ) ):
             self.stopVmAt( i )
         for s in self.switches:
-            s.stopVm( )
+            s.stop( )
 
     def initConfigs( self ):
         """Read and init the configs"""
