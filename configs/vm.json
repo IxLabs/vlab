@@ -1,13 +1,13 @@
 {
   "object_type": "vm_startup",
   "range_low": 1,
-  "range_high": 5,
+  "range_high": 2,
   "qemu_binary": "qemu-system-x86_64",
   "max_ram": "128m",
   "base_name": "VM-test",
   "misc_params": " -machine type=pc,accel=kvm",
   "kernel_image": {
-    "dir": "/home/costash/linux_3.12_built",
+    "dir": "/home/costash/linux_3.14_built",
     "image_name": "linux",
     "init_params": {
       "init": "../scripts/vm_init.sh",
@@ -58,7 +58,7 @@
       "dev": "fsdev",
       "type": "device",
       "id": "fsdev-kernel",
-      "path": "/home/costash/linux_3.12_built",
+      "path": "/home/costash/linux_3.14_built",
       "mount_tag": "kernelshare",
       "device_id": "fs-kernel",
       "device_type": "virtio-9p-pci"

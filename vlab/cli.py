@@ -8,24 +8,25 @@ vlab> h2 ip a s
 
 from cmd import Cmd, IDENTCHARS
 from os import isatty
-from util import run
 import sys
 import os
 import atexit
 
+from util import run
 
-class CLI( Cmd ):
+
+class CLI(Cmd):
     """Simple Command-line interface to communicate with nodes."""
 
     prompt = 'vLab> '
     identchars = IDENTCHARS + '-'
 
-    def __init__( self, vlab, stdin=sys.stdin ):
+    def __init__(self, vlab, stdin=sys.stdin):
         """Instantiates a CLI object
         :param vlab: Vlab class to be run"""
         self.stdin = stdin
         self.vlab = vlab
-        Cmd.__init__( self )
+        Cmd.__init__(self)
         print('Starting CLI:\n')
 
         # Setup history if readline is available
@@ -34,22 +35,22 @@ class CLI( Cmd ):
         except ImportError:
             pass
         else:
-            history_path = os.path.expanduser( '~/.vlab_history' )
-            if os.path.isfile( history_path ):
-                readline.read_history_file( history_path )
+            history_path = os.path.expanduser('~/.vlab_history')
+            if os.path.isfile(history_path):
+                readline.read_history_file(history_path)
             atexit.register(
-                lambda: readline.write_history_file( history_path ) )
+                lambda: readline.write_history_file(history_path))
 
         while True:
             try:
-                if self.isatty( ):
-                    run( 'stty sane' )
-                self.cmdloop( )
+                if self.isatty():
+                    run('stty sane')
+                self.cmdloop()
                 break
             except KeyboardInterrupt:
                 print( '\nInterrupt\n' )
 
-    def emptyline( self ):
+    def emptyline(self):
         """Don't repeat last command when you hit return."""
         pass
 
@@ -66,74 +67,74 @@ class CLI( Cmd ):
         '\n'
     )
 
-    def do_help( self, line ):
+    def do_help(self, line):
         """Describe available CLI commands."""
-        Cmd.do_help( self, line )
+        Cmd.do_help(self, line)
         if line is '':
             print( self.helpStr )
 
-    def isatty( self ):
+    def isatty(self):
         """Is our standard input a tty?"""
-        return isatty( self.stdin.fileno( ) )
+        return isatty(self.stdin.fileno())
 
-    def do_exit( self, _line ):
+    def do_exit(self, _line):
         """Exit"""
-        self.vlab.stopAll( )
+        self.vlab.stopAll()
         return 'Exited by user input'
 
-    def do_quit( self, line ):
+    def do_quit(self, line):
         """Exit"""
-        return self.do_exit( line )
+        return self.do_exit(line)
 
-    def do_EOF( self, line ):
+    def do_EOF(self, line):
         """Exit"""
         print ('\n')
-        return self.do_exit( line )
+        return self.do_exit(line)
 
-    def do_startAll( self, line ):
+    def do_startAll(self, line):
         """Start All VMs"""
-        self.vlab.startAll( )
+        self.vlab.startAll()
         print('Starting all\n')
 
-    def do_stopAll( self, line ):
+    def do_stopAll(self, line):
         """Stop All VMs"""
-        self.vlab.stopAll( )
+        self.vlab.stopAll()
         print('Stopping all\n')
 
-    def do_startVmAt( self, line ):
+    def do_startVmAt(self, line):
         """Starts one VM"""
         # TODO: Add sanity checks
-        self.vlab.startVmAt( int( line ) - 1 )
+        self.vlab.startVmAt(int(line) - 1)
 
-    def do_stopVmAt( self, line ):
+    def do_stopVmAt(self, line):
         """Stops one VM"""
         # TODO: Add sanity checks
-        self.vlab.stopVmAt( int( line ) - 1 )
+        self.vlab.stopVmAt(int(line) - 1)
 
-    def do_xterm( self, line ):
+    def do_xterm(self, line):
         """ Run an xterm with a SSH connection to a host"""
-        first, args, line = self.parseline( line )
+        first, args, line = self.parseline(line)
 
-        self.vlab.xterm( first )
+        self.vlab.xterm(first)
 
-    def default( self, line ):
+    def default(self, line):
         """Called on an input line when the command prefix is not recognized.
         Overridden to run shell commands when a node is the first CLI argument.
         """
 
-        first, args, line = self.parseline( line )
+        first, args, line = self.parseline(line)
 
         print("DEBUG: first: %s args: %s " % (first, args))
 
-        if not first in self.vlab.getVmNames( ):
+        if not first in self.vlab.getVmNames():
             print( '*** Unknown command: %s\n' % line )
         else:
             if not args:
                 print "*** Enter a command for node: %s <cmd>" % first
 
-            node = self.vlab.getNodeByName( first )
+            node = self.vlab.getNodeByName(first)
 
-            out_lines, err_lines = node.sendCmd( args )
+            out_lines, err_lines = node.sendCmd(args)
             for ln in out_lines:
                 print ln,
             for ln in err_lines:
