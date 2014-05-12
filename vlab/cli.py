@@ -48,7 +48,7 @@ class CLI(Cmd):
                 self.cmdloop()
                 break
             except KeyboardInterrupt:
-                print( '\nInterrupt\n' )
+                print('\nInterrupt\n')
 
     def emptyline(self):
         """Don't repeat last command when you hit return."""
@@ -59,7 +59,7 @@ class CLI(Cmd):
     # must have the same interface
     # pylint: disable-msg=R0201
 
-    helpStr = (
+    help_str = (
         'You may also send a command to a node using:\n'
         '  <node> command {args}\n'
         'For example:\n'
@@ -71,7 +71,7 @@ class CLI(Cmd):
         """Describe available CLI commands."""
         Cmd.do_help(self, line)
         if line is '':
-            print( self.helpStr )
+            print(self.help_str)
 
     def isatty(self):
         """Is our standard input a tty?"""
@@ -79,7 +79,7 @@ class CLI(Cmd):
 
     def do_exit(self, _line):
         """Exit"""
-        self.vlab.stopAll()
+        self.vlab.stop_all()
         return 'Exited by user input'
 
     def do_quit(self, line):
@@ -91,25 +91,25 @@ class CLI(Cmd):
         print ('\n')
         return self.do_exit(line)
 
-    def do_startAll(self, line):
+    def do_start_all(self, line):
         """Start All VMs"""
-        self.vlab.startAll()
+        self.vlab.start_all()
         print('Starting all\n')
 
-    def do_stopAll(self, line):
+    def do_stop_all(self, line):
         """Stop All VMs"""
-        self.vlab.stopAll()
+        self.vlab.stop_all()
         print('Stopping all\n')
 
-    def do_startVmAt(self, line):
+    def do_start_vm_at(self, line):
         """Starts one VM"""
         # TODO: Add sanity checks
-        self.vlab.startVmAt(int(line) - 1)
+        self.vlab.start_vm_at(int(line) - 1)
 
-    def do_stopVmAt(self, line):
+    def do_stop_vm_at(self, line):
         """Stops one VM"""
         # TODO: Add sanity checks
-        self.vlab.stopVmAt(int(line) - 1)
+        self.vlab.stop_vm_at(int(line) - 1)
 
     def do_xterm(self, line):
         """ Run an xterm with a SSH connection to a host"""
@@ -126,15 +126,15 @@ class CLI(Cmd):
 
         print("DEBUG: first: %s args: %s " % (first, args))
 
-        if not first in self.vlab.getVmNames():
-            print( '*** Unknown command: %s\n' % line )
+        if not first in self.vlab.get_vm_names():
+            print('*** Unknown command: %s\n' % line)
         else:
             if not args:
                 print "*** Enter a command for node: %s <cmd>" % first
 
-            node = self.vlab.getNodeByName(first)
+            node = self.vlab.get_node_by_name(first)
 
-            out_lines, err_lines = node.sendCmd(args)
+            out_lines, err_lines = node.send_cmd(args)
             for ln in out_lines:
                 print ln,
             for ln in err_lines:

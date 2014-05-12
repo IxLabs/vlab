@@ -15,56 +15,56 @@ import shlex
 class VmConfig(object):
     """Holds data necessary to start a VM"""
 
-    def __init__(self, configData, hostConfig, vmIndex):
+    def __init__(self, config_data, host_config, vm_index):
         """Creates VmConfig object.
 
-        :param configData: Dict containing the info from the vm config file
-        :type configData: dict
-        :param vmIndex: Index of this VmConfig object
-        :type vmIndex: int
+        :param config_data: Dict containing the info from the vm config file
+        :type config_data: dict
+        :param vm_index: Index of this VmConfig object
+        :type vm_index: int
         """
-        self.vmIndex = vmIndex
-        self.vmName = configData['base_name'] + str(self.vmIndex)
-        self.qemuBinary = configData['qemu_binary']
-        self.miscParams = configData['misc_params']
-        self.maxRam = configData['max_ram']
-        self.kernelDir = configData['kernel_image']['dir']
-        self.kernelImageName = configData['kernel_image']['image_name']
-        self.kernelInitParams = dict(
-            configData['kernel_image']['init_params'])
-        self.properties = list(configData['properties'])
-        self.host = hostConfig
+        self.vm_index = vm_index
+        self.vm_name = config_data['base_name'] + str(self.vm_index)
+        self.qemu_binary = config_data['qemu_binary']
+        self.misc_params = config_data['misc_params']
+        self.max_ram = config_data['max_ram']
+        self.kernel_dir = config_data['kernel_image']['dir']
+        self.kernel_image_name = config_data['kernel_image']['image_name']
+        self.kernel_init_params = dict(
+            config_data['kernel_image']['init_params'])
+        self.properties = list(config_data['properties'])
+        self.host = host_config
 
-    def getCommandline(self, mgmtTapName):
+    def get_commandline(self, mgmt_tap_name):
         """Gets the command line needed for starting up the VM
 
-        :param mgmtTapName: The name of the TAP interface created on host
-        :type mgmtTapName: str
+        :param mgmt_tap_name: The name of the TAP interface created on host
+        :typmgmt_tap_nameme: str
         :return: the command line required to run Qemu as list of strings
         :rtype: list(str)
         """
-        directory = '/tmp/' + self.vmName
+        directory = '/tmp/' + self.vm_name
         if not os.path.exists(directory):
             os.makedirs(directory)
-        return ([self.qemuBinary, '-m', str(self.maxRam)] +
-                self._getMiscParams() +
-                self._getChardevLines() + self._getFsdevLines() +
-                self._getKernelLine() + self._getMgmtIntfLine(mgmtTapName))
+        return ([self.qemu_binary, '-m', str(self.max_ram)] +
+                self._get_misc_params() +
+                self._get_chardev_lines() + self._get_fsdev_lines() +
+                self._get_kernel_line() + self._get_mgmt_intf_line(mgmt_tap_name))
 
-    def getVmIndex(self):
+    def get_vm_index(self):
         """Returns the index of this VM"""
-        return self.vmIndex
+        return self.vm_index
 
-    def getVmName(self):
+    def get_vm_name(self):
         """Returns the name of this VM"""
-        return self.vmName
+        return self.vm_name
 
-    def _getMiscParams(self):
-        return shlex.split(self.miscParams)
+    def _get_misc_params(self):
+        return shlex.split(self.misc_params)
 
-    def _getFsdevLines(self):
+    def _get_fsdev_lines(self):
         """Returns the lines corresponding to fsdevs"""
-        fsdevLines = []
+        fsdev_lines = []
         for prop in self.properties:
             if prop['dev'] != 'fsdev':
                 continue
@@ -80,89 +80,88 @@ class VmConfig(object):
                 security_model = 'passthrough'
                 readonly = ',readonly'
 
-            fsdevLines += ['-fsdev',
-                           ('local,security_model=' + security_model +
-                            ',id=' + prop['id'] + ',path=' + path +
-                            readonly)]
-            fsdevLines += ['-device',
-                           (prop['device_type'] + ',fsdev=' + prop['id'] +
-                            ',mount_tag=' + prop['mount_tag'])]
-        return fsdevLines
+            fsdev_lines += ['-fsdev',
+                            ('local,security_model=' + security_model +
+                             ',id=' + prop['id'] + ',path=' + path + readonly)]
+            fsdev_lines += ['-device',
+                            (prop['device_type'] + ',fsdev=' + prop['id'] +
+                             ',mount_tag=' + prop['mount_tag'])]
+        return fsdev_lines
 
-    def _getChardevLines(self):
+    def _get_chardev_lines(self):
         """Returns the lines corresponding to chardevs"""
-        chardevLines = []
+        chardev_lines = []
         for prop in self.properties:
             if prop['dev'] != 'chardev':
                 continue
 
-            chardevProps = 'chardev'
-            path = '/tmp/' + self.vmName
+            chardev_props = 'chardev'
+            path = '/tmp/' + self.vm_name
             if prop['id'] == 'mgmt':
-                chardevProps += ':mgmt'
+                chardev_props += ':mgmt'
                 path += '/vm-mgmt-console.socket'
             elif prop['id'] == 'monitor':
-                chardevProps += '=monitor,mode=readline,default'
+                chardev_props += '=monitor,mode=readline,default'
                 path += '/vm-monitor-console.socket'
 
-            chardevLines += ['-chardev',
-                             ('socket,id=' + prop['id'] + ',path=' + path +
-                              ',server,nowait'),
-                             '-' + prop['type'],
-                             chardevProps]
-        return chardevLines
+            chardev_lines += ['-chardev',
+                              ('socket,id=' + prop['id'] + ',path=' + path +
+                               ',server,nowait'),
+                              '-' + prop['type'],
+                              chardev_props]
+        return chardev_lines
 
-    def _getKernelLine(self):
+    def _get_kernel_line(self):
         """Returns the kernel parameters line"""
         return ['-kernel',
-                self.kernelDir + '/' + self.kernelImageName,
+                self.kernel_dir + '/' + self.kernel_image_name,
                 '-append',
                 ('init=' +
-                 self._getFullPath(self.kernelInitParams['init']) +
+                 self._get_full_path(self.kernel_init_params['init']) +
                  ' console=tty0' +
-                 ' console=' + self.kernelInitParams['console'] +
-                 ' uts=' + self.vmName +
+                 ' console=' + self.kernel_init_params['console'] +
+                 ' uts=' + self.vm_name +
                  ' root=/dev/root' +
-                 self._getRootFlags() +
-                 ' ' + self.kernelInitParams['mode'] +
-                 ' rootfstype=' + self.kernelInitParams['rootfstype'] +
-                 ' ' + self._getInitScriptArgs())]
+                 self._get_root_flags() +
+                 ' ' + self.kernel_init_params['mode'] +
+                 ' rootfstype=' + self.kernel_init_params['rootfstype'] +
+                 ' ' + self._get_init_script_args())]
 
-    def _getRootFlags(self):
+    def _get_root_flags(self):
         """Returns the rootflags sent to kernel init"""
         rootflags = ' rootflags='
-        for key in self.kernelInitParams['rootflags'].keys():
+        for key in self.kernel_init_params['rootflags'].keys():
             rootflags += (key + '=' +
-                          self.kernelInitParams['rootflags'][key] + ',')
+                          self.kernel_init_params['rootflags'][key] + ',')
         return rootflags[0:-1]  # strip last ','
 
-    def _getInitScriptArgs(self):
+    def _get_init_script_args(self):
         """Returns the arguments that will be transmitted to the init script"""
-        return str(self.vmIndex)
+        return str(self.vm_index)
 
-    def _getMgmtIntfLine(self, mgmtTapName):
+    def _get_mgmt_intf_line(self, mgmt_tap_name):
         """Returns the line corresponding with the management netdev
         interface"""
-        mgmtProp = next(
+        mgmt_prop = next(
             (prop for prop in self.properties if prop['dev'] == 'netdev'),
             None)
         return ['-netdev',
-                ('type=' + mgmtProp['type'] + ',id=' +
-                 mgmtProp['id'] + ',ifname=' + mgmtTapName),
+                ('type=' + mgmt_prop['type'] + ',id=' +
+                 mgmt_prop['id'] + ',ifname=' + mgmt_tap_name),
                 '-device',
-                mgmtProp['device_type'] + ',netdev=' + mgmtProp['id']]
+                mgmt_prop['device_type'] + ',netdev=' + mgmt_prop['id']]
 
-    def getNetworkInterface(self, tapName):
+    def get_network_interface(self, tap_name):
         net = next(
             (prop for prop in self.properties if prop['id'] == 'net'),
             None)
-        netdev = net['id'] + tapName
+        netdev = net['id'] + tap_name
         return ["netdev_add " + net['type'] + ",id=" + netdev,
                 "device_add " + net['device_type'] + ",netdev=" + netdev]
 
     @staticmethod
-    def _getFullPath(fileName):
-        p = subprocess.Popen(['readlink', '-f', fileName], stdout=subprocess
+    def _get_full_path(file_name):
+        p = subprocess.Popen(['readlink', '-f', file_name], stdout=subprocess
                              .PIPE)
         output, err = p.communicate()
         return output[0:-1]
@@ -171,43 +170,43 @@ class VmConfig(object):
 class VmConfigLoader(object):
     """Loads config from file and stores it in a dict to be used in VmHandler"""
 
-    def __init__(self, vmFile='../configs/vm.json',
-                 topoFile='../configs/topo.json'):
+    def __init__(self, vm_file='../configs/vm.json',
+                 topo_file='../configs/topo.json'):
         """Create the VmConfigLoader given two config files
 
-        :param vmFile: File where the configs related to Qemu are found
-        :type vmFile: str
-        :param topoFile: File where configs related to topology are found
-        :type topoFile: str
+        :param vm_file: File where the configs related to Qemu are found
+        :type vm_file: str
+        :param topo_file: File where configs related to topology are found
+        :typetopo_filee: str
         """
-        self.vmFile = vmFile
-        self.topoFile = topoFile
-        self.vmConfigData = {}
-        self.vmConfigs = []
-        self.topoConfigData = {}
-        self.hostNames = []
-        self.switchNames = []
+        self.vm_file = vm_file
+        self.topo_file = topo_file
+        self.vm_config_data = {}
+        self.vm_configs = []
+        self.topo_config_data = {}
+        self.host_names = []
+        self.switch_names = []
 
-    def readConfig(self):
+    def read_config(self):
         """Reads the config files and stores them accordingly"""
-        with open(self.vmFile, 'r') as f:
-            self.vmConfigData = json.load(f)
-            print self.vmConfigData
+        with open(self.vm_file, 'r') as f:
+            self.vm_config_data = json.load(f)
+            print self.vm_config_data
 
-        with open(self.topoFile, 'r') as f:
-            self.topoConfigData = json.load(f)
+        with open(self.topo_file, 'r') as f:
+            self.topo_config_data = json.load(f)
 
-        for host in self.topoConfigData['hosts']:
-            self.hostNames.append(host['opts']['hostname'])
+        for host in self.topo_config_data['hosts']:
+            self.host_names.append(host['opts']['hostname'])
 
-        for switch in self.topoConfigData['switches']:
-            self.switchNames.append(switch['opts']['hostname'])
+        for switch in self.topo_config_data['switches']:
+            self.switch_names.append(switch['opts']['hostname'])
 
-    def createVmConfigs(self):
+    def create_vm_configs(self):
         """Generates the VmConfigs"""
 
         links = {}
-        for link in self.topoConfigData['links']:
+        for link in self.topo_config_data['links']:
             src = link['src']
             dst = link['dest']
             if not src in links:
@@ -220,30 +219,30 @@ class VmConfigLoader(object):
             else:
                 links[dst].append(link)
 
-        for i in xrange(self.vmConfigData['range_low'],
-                        self.vmConfigData['range_high'] + 1):
-            hostData = self.topoConfigData['hosts'][i - self.vmConfigData['range_low']]
-            hostname = hostData['opts']['hostname']
-            hostConfig = {'options': hostData['opts'],
-                          'links': links[hostname]}
+        for i in xrange(self.vm_config_data['range_low'],
+                        self.vm_config_data['range_high'] + 1):
+            host_data = self.topo_config_data['hosts'][i - self.vm_config_data['range_low']]
+            hostname = host_data['opts']['hostname']
+            host_config = {'options': host_data['opts'],
+                           'links': links[hostname]}
 
-            print(hostConfig)
+            print(host_config)
 
-            config = VmConfig(self.vmConfigData, hostConfig, i)
-            self.vmConfigs.append(config)
+            config = VmConfig(self.vm_config_data, host_config, i)
+            self.vm_configs.append(config)
 
-    def getConfigs(self):
-        """Gets the list of the VmConfigs. Note: createVmConfigs must be
+    def get_configs(self):
+        """Gets the list of the VmConfigs. Note: create_vm_configs must be
         :return A list of VmConfigs
         :rtype list(VmConfig)
         """
-        return self.vmConfigs
+        return self.vm_configs
 
-    def getTopoConfig(self):
-        return self.topoConfigData
+    def get_topo_config(self):
+        return self.topo_config_data
 
-    def getSwitchNames(self):
-        return self.switchNames
+    def get_switch_names(self):
+        return self.switch_names
 
-    def getHostNames(self):
-        return self.hostNames
+    def get_host_names(self):
+        return self.host_names

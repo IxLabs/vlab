@@ -22,7 +22,7 @@ class Node(object):
     def cleanup(self):
         pass
 
-    def sendCmd(self):
+    def send_cmd(self):
         pass
 
 
@@ -33,17 +33,17 @@ class Switch(Node):
         Node.__init__(self)
         self.switch = s
 
-    def getHostname(self):
+    def get_hostname(self):
         return self.switch['opts']['hostname']
 
     def start(self):
-        print 'Starting switch ' + self.getHostname()
-        cmd = "brctl addbr " + self.getHostname()
+        print 'Starting switch ' + self.get_hostname()
+        cmd = "brctl addbr " + self.get_hostname()
         run(cmd)
 
     def stop(self):
-        print 'Stopping switch ' + self.getHostname()
-        cmd = "brctl delbr " + self.getHostname()
+        print 'Stopping switch ' + self.get_hostname()
+        cmd = "brctl delbr " + self.get_hostname()
         run(cmd)
 
 
