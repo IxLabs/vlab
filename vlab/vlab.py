@@ -8,6 +8,8 @@ from vmconfig import VmConfigLoader, VmConfig
 from vmhandler import VmHandler
 from node import Switch
 
+import shlex
+from subprocess import Popen
 import socket
 
 
@@ -99,6 +101,24 @@ class Vlab( object ):
         """
         if self.vmHandlers[ index ].isStarted( ):
             self.vmHandlers[ index ].stopVm( )
+
+    def _run_xterm( self, hostname ):
+        node = self.getNodeByName( hostname )
+        if not node.isStarted( ):
+            print( "{} is not running".format( hostname ) )
+            return
+
+        cmd = "xterm -e \"/usr/bin/ssh root@" + node.getMgmtIp( ) + "\""
+        cmd = shlex.split( cmd )
+        Popen( cmd )
+
+    def xterm( self, hostname ):
+
+        if hostname is None:
+            for name in self.nameToNode:
+                self._run_xterm( name )
+        else:
+            self._run_xterm( hostname )
 
     def getVmNames( self ):
         """Returns a list of all VM names"""

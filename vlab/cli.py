@@ -110,6 +110,12 @@ class CLI( Cmd ):
         # TODO: Add sanity checks
         self.vlab.stopVmAt( int( line ) - 1 )
 
+    def do_xterm( self, line ):
+        """ Run an xterm with a SSH connection to a host"""
+        first, args, line = self.parseline( line )
+
+        self.vlab.xterm( first )
+
     def default( self, line ):
         """Called on an input line when the command prefix is not recognized.
         Overridden to run shell commands when a node is the first CLI argument.
