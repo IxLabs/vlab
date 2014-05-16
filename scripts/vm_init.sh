@@ -48,8 +48,9 @@ mount -o bind /tmp/vmroot/root /root
 
 info 'Mounting /etc ...'
 # Mount /etc
-mkdir -p /tmp/vmroot/etc
-mount -o bind /tmp/vmroot/etc /etc
+rm -f /tmp/vmroot/etc/mtab      # Make sure mtab file doesn't exist here
+mount -t tmpfs tmpfs /etc -o rw
+cp -r /tmp/vmroot/etc/* /etc/
 
 info 'Mounting kernel modules ...'
 # Mount kernel modules
