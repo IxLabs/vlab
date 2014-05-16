@@ -34,6 +34,7 @@ class VmConfig(object):
             config_data['kernel_image']['init_params'])
         self.properties = list(config_data['properties'])
         self.host = host_config
+        self.home_dir = ""
 
     def get_commandline(self, mgmt_tap_name):
         """Gets the command line needed for starting up the VM
@@ -59,6 +60,14 @@ class VmConfig(object):
         """Returns the name of this VM"""
         return self.vm_name
 
+    def get_home_dir(self):
+        """Returns the path of this VM home directory"""
+        return self.home_dir
+
+    def get_ssh_key_path(self):
+        """Returns the path of this VM's private SSH key"""
+        return self.get_home_dir() + '/root/.ssh/id_rsa'
+
     def _get_misc_params(self):
         return shlex.split(self.misc_params)
 
@@ -73,6 +82,7 @@ class VmConfig(object):
             if prop['id'] == 'fsdev-home':
                 if not os.path.exists(path):
                     raise IOError('Vmrootfs folder does not exist: %s' % path)
+                self.home_dir = path
 
             security_model = 'none'
             readonly = ''

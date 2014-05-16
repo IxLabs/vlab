@@ -110,8 +110,11 @@ class Vlab(object):
             print("{} is not running".format(hostname))
             return
 
-        cmd = "xterm -e \"/usr/bin/ssh root@" + node.get_mgmt_ip() + "\""
+        ssh_key = node.get_ssh_key_path()
+        cmd = ("xterm -e \"/usr/bin/ssh -i " + ssh_key +
+               " root@" + node.get_mgmt_ip() + "\"")
         cmd = shlex.split(cmd)
+        print("DEBUG: _run_xterm cmd= " + str(cmd))
         Popen(cmd)
 
     def xterm(self, hostname):

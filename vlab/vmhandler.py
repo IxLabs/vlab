@@ -56,14 +56,19 @@ class VmHandler(object):
 
     def send_cmd(self, line):
         """Sends a command to host to be executed"""
+        ssh_private_key = self.config.get_ssh_key_path()
         c = ssh_setup()
-        c.connect(self.mgmt_ip, username='root')
+        c.connect(self.mgmt_ip, username='root', key_filename=ssh_private_key)
         line = 'source ~/.bashrc; ' + line
         stdin, stdout, stderr = c.exec_command(line)
         out_lines = stdout.readlines()
         err_lines = stderr.readlines()
         c.close()
         return out_lines, err_lines
+
+    def get_ssh_key_path(self):
+        """Returns the path of this VM's private SSH key"""
+        return self.config.get_ssh_key_path()
 
     def get_mgmt_ip(self):
         """Returns the management interface's ip"""
