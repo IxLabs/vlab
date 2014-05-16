@@ -43,11 +43,12 @@ mount -t 9p overlayshare /tmp/vmroot -o trans=virtio,version=9p2000.L,access=0,r
 
 info 'Mounting home dir on /root ...'
 # Mount home dir on /root
-mkdir -p /tmp/vmroot/root
+[ ! -d /tmp/vmroot/root ] && error 'root folder not found in vmrootfs.'
 mount -o bind /tmp/vmroot/root /root
 
 info 'Mounting /etc ...'
 # Mount /etc
+[ ! -d /tmp/vmroot/etc ] && error 'etc folder not found in vmrootfs.'
 rm -f /tmp/vmroot/etc/mtab      # Make sure mtab file doesn't exist here
 mount -t tmpfs tmpfs /etc -o rw
 cp -r /tmp/vmroot/etc/* /etc/
