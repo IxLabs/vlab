@@ -3,6 +3,8 @@ VmHandler is used by Nodes for interacting with a Qemu VM.
 """
 
 import subprocess
+from subprocess import Popen
+import shlex
 import socket
 
 from vmconfig import VmConfig
@@ -52,6 +54,7 @@ class VmHandler(object):
         return self.started
 
     def get_vm_name(self):
+        """Returns the name of this VM"""
         return self.config.vm_name
 
     def send_cmd(self, line):
@@ -65,6 +68,19 @@ class VmHandler(object):
         err_lines = stderr.readlines()
         c.close()
         return out_lines, err_lines
+
+    def run_xterm(self):
+        """Starts an xterm on this host"""
+        if not self.is_started():
+            print("{} is not running".format(self.get_vm_name()))
+            return
+
+        ssh_key = self.get_ssh_key_path()
+        cmd = ("xterm -e \"/usr/bin/ssh -i " + ssh_key +
+               " root@" + self.get_mgmt_ip() + "\"")
+        cmd = shlex.split(cmd)
+        print("DEBUG: _run_xterm cmd= " + str(cmd))
+        Popen(cmd)
 
     def get_ssh_key_path(self):
         """Returns the path of this VM's private SSH key"""
@@ -101,18 +117,6 @@ class VmHandler(object):
         response = sock.recv(128)
         sock.close()
         return response
-
-    def screen_attach_monitor(self):
-        pass
-
-    def screen_attach_guest_control(self):
-        pass
-
-    def screen_detach(self):
-        pass
-
-    def quit_vm(self):
-        pass
 
     @staticmethod
     def _create_tap_intf():

@@ -187,7 +187,7 @@ class VmConfigLoader(object):
         :param vm_file: File where the configs related to Qemu are found
         :type vm_file: str
         :param topo_file: File where configs related to topology are found
-        :typetopo_filee: str
+        :type topo_file: str
         """
         self.vm_file = vm_file
         self.topo_file = topo_file

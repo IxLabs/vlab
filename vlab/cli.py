@@ -132,9 +132,9 @@ class CLI(Cmd):
             if not args:
                 print "*** Enter a command for node: %s <cmd>" % first
 
-            node = self.vlab.get_node_by_name(first)
+            node = self.vlab.get_host_by_name(first)
 
-            out_lines, err_lines = node.send_cmd(args)
+            out_lines, err_lines = node.exec_cmd(args)
             for ln in out_lines:
                 print ln,
             for ln in err_lines:
