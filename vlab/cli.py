@@ -134,7 +134,14 @@ class CLI(Cmd):
 
             node = self.vlab.get_host_by_name(first)
 
-            out_lines, err_lines = node.exec_cmd(args)
+            # Substitute IP addresses for node names in command
+            rest = args.split(' ')
+            rest = [self.vlab.get_host_by_name(arg).get_mgmt_ip()
+                    if arg in self.vlab.get_vm_names() else arg
+                    for arg in rest]
+            rest = ' '.join(rest)
+
+            out_lines, err_lines = node.exec_cmd(rest)
             for ln in out_lines:
                 print ln,
             for ln in err_lines:

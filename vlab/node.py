@@ -93,3 +93,6 @@ class Host(Node):
 
     def run_xterm(self):
         return self.vmhandler.run_xterm()
+
+    def get_mgmt_ip(self):
+        return self.vmhandler.get_mgmt_ip()
