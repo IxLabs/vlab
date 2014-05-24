@@ -229,16 +229,17 @@ class VmConfigLoader(object):
             else:
                 links[dst].append(link)
 
-        for i in xrange(self.vm_config_data['range_low'],
-                        self.vm_config_data['range_high'] + 1):
-            host_data = self.topo_config_data['hosts'][i - self.vm_config_data['range_low']]
+        for i in xrange(len(self.topo_config_data['hosts'])):
+            host_data = self.topo_config_data['hosts'][i]
             hostname = host_data['opts']['hostname']
             host_config = {'options': host_data['opts'],
                            'links': links[hostname]}
 
             print(host_config)
 
-            config = VmConfig(self.vm_config_data, host_config, i)
+            # TODO: Fix kernel bug that makes intf with ip 10.0.0.2 to be sent on lo
+            # instead of eth0 (inside vm)
+            config = VmConfig(self.vm_config_data, host_config, i + 1)
             self.vm_configs.append(config)
 
     def get_configs(self):

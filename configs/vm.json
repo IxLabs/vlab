@@ -1,7 +1,5 @@
 {
   "object_type": "vm_startup",
-  "range_low": 1,
-  "range_high": 2,
   "qemu_binary": "qemu-system-x86_64",
   "max_ram": "128m",
   "base_name": "VM-test",
