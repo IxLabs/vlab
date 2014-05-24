@@ -36,28 +36,33 @@ class Vlab(object):
         self.notifysocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.notifysocket.listen(Vlab.BACKLOG)
 
+    def _wait_vm(self):
+        """Wait a vm to boot. Returns the vmname that was sent from host"""
+        client, addr = self.notifysocket.accept()
+
+        message = client.recv(128)
+        print message,
+
+        client.close()
+
+        msgparams = message.split(" ")
+        return msgparams[0]
+
     def start_all(self):
         """Start All the VMs"""
         for i in xrange(len(self.configs)):
-            self.start_vm_at(i)
+            self._start_vm_at(i)
         for s in self.switches:
             s.start()
 
         booted = 0
         while booted < len(self.configs):
-            client, addr = self.notifysocket.accept()
+            vmname = self._wait_vm()
             booted += 1
 
-            message = client.recv(128)
-            client.close()
-
-            msgparams = message.split(" ")
-            vmname = msgparams[0]
             for vm in self.hosts:
                 if vm.get_hostname() == vmname:
                     vm.configure_interfaces()
-
-            print message,
 
     def stop_all(self):
         """Stop All the VMs"""
@@ -88,12 +93,21 @@ class Vlab(object):
             switch = Switch(s)
             self.switches.append(switch)
 
+    def _start_vm_at(self, index):
+        self.hosts[index].start()
+
     def start_vm_at(self, index):
         """Starts the VM number index
         :param index: The index of the VM to be started
         :type index: int
         """
-        self.hosts[index].start()
+        self._start_vm_at(index)
+        vmname = self._wait_vm()
+        vm = self.hosts[index]
+        if not vmname == vm.get_hostname():
+            print("ERROR: Got %s, but expected %s" %
+                  (vmname, self.hosts[index].get_hostname()))
+        vm.configure_interfaces()
 
     def stop_vm_at(self, index):
         """Stops the VM number index
