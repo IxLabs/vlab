@@ -59,6 +59,13 @@ class Switch(Node):
         cmd = "brctl delbr " + self.get_hostname()
         run(cmd)
 
+    def add_intf(self, intf):
+        print "Adding interface " + intf
+        cmd = "brctl addif " + self.get_hostname() + " " + intf
+
+    def del_intf(self, intf):
+        print "Deleting interface " + self.int
+        cmd = "brctl delif " + self.get_hostname() + " " + intf
 
 class Host(Node):
     """A Host is actually a node that runs in a Qemu VM"""
