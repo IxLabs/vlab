@@ -33,6 +33,7 @@ class Vlab(object):
         """Creates a socket to listen for boot signal"""
         self.notifysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.notifysocket.bind(('0.0.0.0', Vlab.LISTEN_PORT))
+        self.notifysocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1);
         self.notifysocket.listen(Vlab.BACKLOG)
 
     def start_all(self):
