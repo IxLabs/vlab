@@ -42,9 +42,10 @@ class Node(object):
 class Switch(Node):
     """A switch is basically a bridge"""
 
-    def __init__(self, s):
+    def __init__(self, s, l):
         Node.__init__(self)
         self.switch = s
+        self.links = l
 
     def get_hostname(self):
         return self.switch['opts']['hostname']
@@ -62,10 +63,36 @@ class Switch(Node):
     def add_intf(self, intf):
         print "Adding interface " + intf
         cmd = "brctl addif " + self.get_hostname() + " " + intf
+        run(cmd)
 
     def del_intf(self, intf):
         print "Deleting interface " + self.int
         cmd = "brctl delif " + self.get_hostname() + " " + intf
+        run(cmd)
+
+    #TODO: reduce duplicate code
+    def add_links(self):
+        print "Adding Links :"
+        for link in self.links:
+            src = link['src']
+            dst = link['dest']
+
+            if self.get_hostname() == src:
+                peer = dst
+            else:
+                peer = src
+            self.add_intf(peer)
+
+    def del_links(self):
+        for link in self.links:
+            src = link['src']
+            dst = link['dest']
+
+            if self.get_hostname() == src:
+                peer = dst
+            else:
+                peer = src
+            self.del_intf(peer)
 
 class Host(Node):
     """A Host is actually a node that runs in a Qemu VM"""

@@ -64,6 +64,10 @@ class Vlab(object):
                 if vm.get_hostname() == vmname:
                     vm.configure_interfaces()
 
+        #add links to switches
+        for s in self.switches:
+            s.add_links()
+
     def stop_all(self):
         """Stop All the VMs"""
         for i in xrange(len(self.configs)):
@@ -90,7 +94,8 @@ class Vlab(object):
 
     def _create_switches(self):
         for s in self.topo['switches']:
-            switch = Switch(s)
+            l = self.vm_config_loader.get_links()[s['opts']['hostname']]
+            switch = Switch(s, l)
             self.switches.append(switch)
 
     def _start_vm_at(self, index):
