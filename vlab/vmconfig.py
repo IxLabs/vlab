@@ -166,7 +166,7 @@ class VmConfig(object):
             (prop for prop in self.properties if prop['id'] == 'net'),
             None)
         netdev = net['id'] + tap_name
-        return ["netdev_add " + net['type'] + ",id=" + netdev,
+        return ["netdev_add " + net['type'] + ",id=" + netdev + ",ifname=" + tap_name,
                 "device_add " + net['device_type'] + ",netdev=" + netdev]
 
     @staticmethod
