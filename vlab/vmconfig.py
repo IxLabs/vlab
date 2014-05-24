@@ -207,6 +207,7 @@ class VmConfigLoader(object):
         self.topo_config_data = {}
         self.host_names = []
         self.switch_names = []
+        self.links = {}
 
     def read_config(self):
         """Reads the config files and stores them accordingly"""
@@ -240,6 +241,8 @@ class VmConfigLoader(object):
             else:
                 links[dst].append(link)
 
+        self.links = links
+
         for i in xrange(len(self.topo_config_data['hosts'])):
             host_data = self.topo_config_data['hosts'][i]
             hostname = host_data['opts']['hostname']
@@ -268,3 +271,6 @@ class VmConfigLoader(object):
 
     def get_host_names(self):
         return self.host_names
+
+    def get_links(self):
+        return self.links
