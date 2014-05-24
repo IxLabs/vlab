@@ -243,8 +243,10 @@ class VmConfigLoader(object):
 
         self.links = links
 
-        for i in xrange(len(self.topo_config_data['hosts'])):
-            host_data = self.topo_config_data['hosts'][i]
+        sorted_hosts = sorted(self.topo_config_data['hosts'], key=lambda k: int(k['number']))
+
+        for i in xrange(len(sorted_hosts)):
+            host_data = sorted_hosts[i]
             hostname = host_data['opts']['hostname']
             host_config = {'options': host_data['opts'],
                            'links': links[hostname]}
