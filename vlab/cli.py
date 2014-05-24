@@ -103,13 +103,25 @@ class CLI(Cmd):
 
     def do_start_vm_at(self, line):
         """Starts one VM"""
-        # TODO: Add sanity checks
-        self.vlab.start_vm_at(int(line) - 1)
+        try:
+            index = int(line) - 1
+            if not self.vlab.index_in_bounds(index):
+                print('VM Index out of bounds')
+                return
+            self.vlab.start_vm_at(index)
+        except ValueError, arg:
+            print "The argument does not contain numbers\n", arg
 
     def do_stop_vm_at(self, line):
         """Stops one VM"""
-        # TODO: Add sanity checks
-        self.vlab.stop_vm_at(int(line) - 1)
+        try:
+            index = int(line) - 1
+            if not self.vlab.index_in_bounds(index):
+                print('VM Index out of bounds')
+                return
+            self.vlab.stop_vm_at(index)
+        except ValueError, arg:
+            print "The argument does not contain numbers\n", arg
 
     def do_xterm(self, line):
         """ Run an xterm with a SSH connection to a host"""

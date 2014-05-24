@@ -96,6 +96,10 @@ class Vlab(object):
     def _start_vm_at(self, index):
         self.hosts[index].start()
 
+    def index_in_bounds(self, index):
+        """Returns whether index is in bounds of hosts array"""
+        return 0 <= index < len(self.hosts)
+
     def start_vm_at(self, index):
         """Starts the VM number index
         :param index: The index of the VM to be started
