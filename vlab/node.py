@@ -81,7 +81,7 @@ class Switch(Node):
                 peer = dst
             else:
                 peer = src
-            self.add_intf(peer)
+            self.add_intf("tap" + "." + peer)
 
     def del_links(self):
         for link in self.links:
@@ -92,7 +92,7 @@ class Switch(Node):
                 peer = dst
             else:
                 peer = src
-            self.del_intf(peer)
+            self.del_intf("tap" + "." + peer)
 
 class Host(Node):
     """A Host is actually a node that runs in a Qemu VM"""
