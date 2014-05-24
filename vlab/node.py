@@ -31,6 +31,10 @@ class Node(object):
         """
         pass
 
+    def is_started(self):
+        """Returns whether this node is started or not"""
+        pass
+
     def get_hostname(self):
         """Gets the hostname of this Node
         :return The hostname corresponding tho this Node
@@ -46,19 +50,31 @@ class Switch(Node):
         Node.__init__(self)
         self.switch = s
         self.links = l
+        self.started = False
 
     def get_hostname(self):
         return self.switch['opts']['hostname']
 
     def start(self):
+        if self.is_started():
+            print("%s already started" % (self.get_hostname()))
+            return
         print 'Starting switch ' + self.get_hostname()
         cmd = "brctl addbr " + self.get_hostname()
         run(cmd)
+        self.started = True
 
     def stop(self):
+        if not self.is_started():
+            print("%s already stopped" % (self.get_hostname()))
+            return
         print 'Stopping switch ' + self.get_hostname()
         cmd = "brctl delbr " + self.get_hostname()
         run(cmd)
+        self.started = False
+
+    def is_started(self):
+        return self.started
 
     def add_intf(self, intf):
         print "Adding interface " + intf
