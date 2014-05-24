@@ -89,7 +89,7 @@ class Host(Node):
         return self.vmhandler.is_started()
 
     def configure_interfaces(self):
-        return self.vmhandler.configure()
+        return self.vmhandler.configure_interfaces()
 
     def run_xterm(self):
         return self.vmhandler.run_xterm()

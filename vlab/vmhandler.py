@@ -90,19 +90,36 @@ class VmHandler(object):
         """Returns the management interface's ip"""
         return self.mgmt_ip
 
-    def configure_interface(self, link):
+    def configure_interface(self, link, link_idx):
+        """Creates host test interface, adds it to the guest and configures IP address
+
+        :param link: Configuration options for a link read from topo.json
+        :type link: dict
+        :param link_idx: Test interface index
+        :type link_idx: int
+        """
         tap = VmHandler._create_tap_intf()
         self.test_interfaces[tap] = link
         netdev, device = self.config.get_network_interface(tap)
         self.monitor_send_cmd(netdev)
         self.monitor_send_cmd(device)
         self.send_cmd("echo 1 > /sys/bus/pci/rescan")
-        # TODO: set IP in guest
 
-    def configure(self):
+        ip = self.config.host['options']['ip'].split('.')
+        ip[3] = str(int(ip[3]) + link_idx)
+        ipstr = ".".join(ip)
+        # Add one because eth0 is the management interface
+        intf_name = "eth" + str(link_idx + 1)
+
+        self.send_cmd("ip a a " + ipstr + "/24 dev " + intf_name)
+        self.send_cmd("ip link set " + intf_name + " up")
+
+    def configure_interfaces(self):
         print(self.config.host)
+        i = 0
         for link in self.config.host['links']:
-            self.configure_interface(link)
+            self.configure_interface(link, i)
+            i = i + 1
 
     def clean_interfaces(self):
         for intf in self.test_interfaces:
