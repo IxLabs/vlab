@@ -27,6 +27,7 @@ class VmHandler(object):
         self.vm_process = None
         self.mgmt_ip = self._generate_mgmt_ip()
         self.test_interfaces = {}
+        self.xterm_processes = []
 
     def start_vm(self):
         """Starts the VM. Handles the creation of tap interfaces as well"""
@@ -48,6 +49,7 @@ class VmHandler(object):
         self.tap = ''
         self.started = False
         self.clean_interfaces()
+        self.kill_xterms()
 
     def is_started(self):
         """Returns whether the VM is currently started or not"""
@@ -80,7 +82,12 @@ class VmHandler(object):
                " root@" + self.get_mgmt_ip() + "\"")
         cmd = shlex.split(cmd)
         print("DEBUG: _run_xterm cmd= " + str(cmd))
-        Popen(cmd)
+        process = Popen(cmd)
+        self.xterm_processes.append(process)
+
+    def kill_xterms(self):
+        for p in self.xterm_processes:
+            p.terminate()
 
     def get_ssh_key_path(self):
         """Returns the path of this VM's private SSH key"""
