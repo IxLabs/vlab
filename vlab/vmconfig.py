@@ -10,7 +10,8 @@ import json
 import subprocess
 import os
 import shlex
-
+import random
+import binascii
 
 class VmConfig(object):
     """Holds data necessary to start a VM"""
@@ -152,6 +153,7 @@ class VmConfig(object):
     def _get_mgmt_intf_line(self, mgmt_tap_name):
         """Returns the line corresponding with the management netdev
         interface"""
+        # TODO: Use a MAC address from the config, if it is available
         mgmt_prop = next(
             (prop for prop in self.properties if prop['dev'] == 'netdev'),
             None)
@@ -159,15 +161,19 @@ class VmConfig(object):
                 ('type=' + mgmt_prop['type'] + ',id=' +
                  mgmt_prop['id'] + ',ifname=' + mgmt_tap_name),
                 '-device',
-                mgmt_prop['device_type'] + ',netdev=' + mgmt_prop['id']]
+                mgmt_prop['device_type'] + ',netdev=' + mgmt_prop['id'] +
+                ",mac=" + self._get_random_mac()]
 
     def get_network_interface(self, tap_name):
         net = next(
             (prop for prop in self.properties if prop['id'] == 'net'),
             None)
+        # TODO: Use a MAC address from the config, if it is available
         netdev = net['id'] + tap_name
-        return ["netdev_add " + net['type'] + ",id=" + netdev + ",ifname=" + tap_name,
-                "device_add " + net['device_type'] + ",netdev=" + netdev]
+        return ["netdev_add " + net['type'] + ",id=" + netdev +
+                ",ifname=" + tap_name,
+                "device_add " + net['device_type'] + ",netdev=" + netdev +
+                ",mac=" + self._get_random_mac()]
 
     @staticmethod
     def _get_full_path(file_name):
@@ -176,6 +182,11 @@ class VmConfig(object):
         output, err = p.communicate()
         return output[0:-1]
 
+    @staticmethod
+    def _get_random_mac():
+        values = [0, 1, 1] + [random.randint(0, 255) for i in range(3)]
+
+        return ":".join([binascii.hexlify(chr(c)) for c in values])
 
 class VmConfigLoader(object):
     """Loads config from file and stores it in a dict to be used in VmHandler"""
