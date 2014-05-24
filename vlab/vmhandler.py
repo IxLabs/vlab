@@ -98,7 +98,8 @@ class VmHandler(object):
         :param link_idx: Test interface index
         :type link_idx: int
         """
-        tap = VmHandler._create_tap_intf()
+        tap_name = "tap." + self.config.host['options']['hostname']
+        tap = VmHandler._create_tap_intf(tap_name)
         self.test_interfaces[tap] = link
         netdev, device = self.config.get_network_interface(tap)
         self.monitor_send_cmd(netdev)
@@ -136,12 +137,19 @@ class VmHandler(object):
         return response
 
     @staticmethod
-    def _create_tap_intf():
+    def _create_tap_intf(name=None):
         """Create a TAP interface on host to be used inside VM
+
+        :param name: The name requested for the new interface
+        :type: str
         :return: The name of the newly created TAP interface
         :rtype: str
         """
-        p = subprocess.Popen(['tunctl', '-b'], stdout=subprocess.PIPE)
+        cmd = ['tunctl', '-b']
+        if name:
+            cmd += ['-t', name]
+
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         output, err = p.communicate()
         return output[0:-1]
 
