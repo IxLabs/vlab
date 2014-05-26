@@ -1,7 +1,20 @@
 \chapter{Introduction}
 \label{chapter:intro}
 
-\todo{Short description on what is the problem and why do we need vLab}
+As more and more kinds of hardware parts are created, we need to write more software to make use of that hardware.
+The more we write software, the more testing needs to be made in order to ensure high quality products are made.
+Testing kernel modules is especially important, because they are among the most vital parts of a computer system.
+It is enough for one mistake to be made in a kernel module for the system to be
+destabilized, or even worse, for the hardware components to be destroyed.
+Thus, care must be taken when writing this kind of software.
+But as we know it, human beings make mistakes, therefore we need to provide an easy way to test these modules.
+
+Here is where my project, \project, comes into play.
+It aims to make the life of kernel modules developers easier by creating a Virtual Laboratory.
+This laboratory is able to simulate a real network of computers that are interconnected.
+It is very useful especially for network modules, which usually need at least two nodes to be able to make a simple test.
+When more nodes are needed, things tend to be troublesome for the developer, as he would normally need a lot of manual steps only to setup the testing infrastructure.
+\project\ is very handy in this case, as it not only reduces the time for setting up the environment, but also increases productivity by making it easy for the developer to automate these steps.
 
 \section{How is a protocol tested?}
 \label{sec:proto-testing}
