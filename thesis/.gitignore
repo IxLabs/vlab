@@ -23,3 +23,6 @@ thesis.pdf
 *.gz
 *.bak
 *.dvi
+*.lol
+*.nlg
+*.nls

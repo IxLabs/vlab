@@ -9,53 +9,98 @@ destabilized, or even worse, for the hardware components to be destroyed.
 Thus, care must be taken when writing this kind of software.
 But as we know it, human beings make mistakes, therefore we need to provide an easy way to test these modules.
 
-Here is where my project, \project, comes into play.
+Here is where \project\ comes into play.
 It aims to make the life of kernel modules developers easier by creating a Virtual Laboratory.
 This laboratory is able to simulate a real network of computers that are interconnected.
 It is very useful especially for network modules, which usually need at least two nodes to be able to make a simple test.
 When more nodes are needed, things tend to be troublesome for the developer, as he would normally need a lot of manual steps only to setup the testing infrastructure.
 \project\ is very handy in this case, as it not only reduces the time for setting up the environment, but also increases productivity by making it easy for the developer to automate these steps.
 
-\section{How is a protocol tested?}
+\section{How Is a Protocol Tested?}
 \label{sec:proto-testing}
 
-\todo{Short description on how a protocol can be tested}
+It has already been mentioned that modules need to be tested thoroughly. But how is actually a network module, or more specifically, a protocol tested?
+Basically, this requires two or more nodes that need to be interconnected with some kind of network cards.
+They can be either switches or hosts that communicate through the network cards, using the kernel module or driver under test.
+After establishing the ``physical'' interconnection, one can run a series of tests to make sure that both the drivers and the protocol are correctly implemented.
 
-\subsection{Buying hardware}
+Currently, there are a couple existing solutions for this kind of testing.
+The first and most expensive option would be to use real hardware for each node under test, described in \labelindexref{Section}{sub-sec:proto-testing-hardware}.
+The other options would be to use existing virtualization tools like VMware\footnote{\url{http://www.vmware.com/}} and VirtualBox\footnote{\url{https://www.virtualbox.org/}} which is discussed in \labelindexref{Section}{sub-sec:proto-testing-vms} and the third option described in \labelindexref{Section}{sub-sec:proto-testing-mininet}.
+
+\subsection{Buying Hardware}
 \label{sub-sec:proto-testing-hardware}
 
-\todo{It's expensive, not scalable, takes too long, etc}
+Very common in the early days was to use real hardware for each node required in a testing harness.
+This is not only expensive, but it is also very difficult to manage.
+It requires a lot of physical space for depositing the machines, many man-hours for setting up the configurations and for maintenance.
+Because of this, it is not scaling either when there are a lot of nodes needed for some tests.
+For example, let's say we would need around 100 nodes for testing a switching protocol.
+This automatically means that 100 machines would need to be bought and configured manually only for this purpose.
+It is ridiculous even to think about such a thing, especially if you are an environmentalist that wants to use the resources as efficiently as possible.
+From a business point of view, this should be the last resort when it comes to finding solutions just for early testing of a protocol.
 
-\subsection{Create virtual machines using existing solutions}
+Of course, software should be tested on real hardware as well, but this should be done only as a means of providing stability tests, or speed tests that are absolutely necessary before releasing a network protocol or module into production.
+But this is not the subject of this paper.
+We will focus on solutions for testing software in the early stages of development, where a developer would like to get fast confirmation that what he currently wrote in a part of a network module is working properly.
+In this case, using real hardware is not helpful, as it is too difficult to setup and it would be a huge overhead before running a test suite that should otherwise be able to provide the results quickly.
+
+\subsection{Existing Virtualization Solutions}
 \label{sub-sec:proto-testing-vms}
 
-\todo{Present existing solutions like VMWare, VirtualBox etc...
-It's scalable, but expensive; Configuration takes too much time and it requires good
-hardware}
+Another approach that is very handy these days is using virtualization\footnote{\url{http://en.wikipedia.org/wiki/Virtualization}}.\nocite{smith05}
+This implies using a physical computer that hosts one or more virtualized computers, named guests.
+This is achieved by using solutions provided by VMware or VirtualBox that can run several operating systems simultaneously on the same physical machine, as if they were installed on separate machines.
 
-\subsection{Virtualization at process level (Mininet)}
+It is a very good and robust solution, as it scales very well and can handle many scenarios.
+This comes with a great disadvantage.
+It requires some powerful hardware in order to run properly: good processors, quite much RAM.
+Also, there is an overhead for creating and configuring the virtual machines, which in many cases affects the productivity of the developer.
+More details about this will be discussed in \labelindexref{Section}{sec:vmw-vbox}.
+
+\subsection{Other Solutions - Mininet}
 \label{sub-sec:proto-testing-mininet}
 
-\todo{* It uses processes for simulating nodes (switches and hosts)
-* Kernel modules cannot be tested}
+Mininet\footnote{\url{http://mininet.org/}} is a very useful tool for creating a virtual network, on a single machine.
+It is robust, easy to configure and deploy on any machine that needn't be very powerful to run a test with over 50 nodes.
+
+Even though it looks really good at the first sight, there is one major issue with Mininet: it cannot run tests for kernel modules.
+This means it is not exactly what we needed.
+The reason Mininet is not able to fulfill our needs is that it runs a process for each node, which limits its scope only to user space applications.
+More details on this will be covered in the next chapter, in the section \labelindexref{Section}{sec:mininet} where more details are provided on this topic.
 
 \section{Project Description}
 \label{sec:proj-desc}
 
-\subsection{Introducing vLab, a testing solution based on Qemu and custom configs}
+In the previous section we introduced the existing solutions for testing a network protocol.
+This section presents \project, the solution that this paper is about.
+It aims to overcome the disadvantages from the other solutions, while keeping their advantages and key features.
+
+\subsection{Introducing the Virtual Laboratory (\project)}
 \label{sub-sec:proj-desc-intro}
+
+\project\ is a solution for testing kernel modules for networking and protocols.
+It is based on QEMU\footnote{\url{http://wiki.qemu.org/Main_Page}}, an open source machine emulator and virtualizer, and creates an easily configurable environment for testing.
+Because QEMU is used for virtualization of the nodes, \project\ has the same advantages as VMware or VirtualBox.
+On the other hand, it is based on the same idea behind Mininet, which manages hosts and the connection between them.
+It lets the user specify some small configuration files, taking away the headache of manually setting up the virtual machines for the testing harness.
 
 \subsection{Objective}
 \label{sub-sec:proj-desc-objective}
 
-\todo{Objective: Ne propunem să creem un sistem minimal care să simuleze o rețea cu 
-număr configurabil de host-uri și switch-uri;
-(dorim sa obtinem o aplicate care sa ne permita sa simulam usor si rapid o retea) -
-adaugat lista de feature-uri (vLab CLI, ssh, seriala, xterm, config-uri usor de
-scris)}
+This project aims to create a minimal system that can simulate a network with a customizable number of hosts and switches.
+The goal is to have an application that is fast and easy to configure for a given network topology, which in turn is used for setting up a testing environment.
+The list of features of this application contains a minimal \abbrev{CLI}{Command Line Interface} CLI for running commands, the ability to connect to hosts via \abbrev{SSH}{Secure SHell} SSH or via a serial interface and the ability to start an xterm\footnote{\url{http://invisible-island.net/xterm/}} on either of the hosts, which makes possible for tests to be automated easily, or to quickly inspect when different problems arise in the module under test.
 
-\subsection{What is presented next}
-\label{sub-sec:proj-desc-following}
+\section{Summary}
+\label{sec:summary}
 
-\todo{Short description of what is presented in the next chapters
-}
+\labelindexref{Chapter}{chapter:Chapter 2} presents the state of the art: how do the existing solutions work and what new features introduces \project.
+
+\labelindexref{Chapter}{chapter:Chapter 3} describes an overview of \project\ from the perspective of the user.
+
+\labelindexref{Chapter}{chapter:Chapter 4} defines the architecture and implementation details of the application.
+
+\labelindexref{Chapter}{chapter:Chapter 5} presents the results of experimental setups, focusing on loading times, memory usage and other aspects related to performance.
+
+Finally, \labelindexref{Chapter}{chapter:Chapter 6} creates a summary of what has been done and what are some ideas to be implemented in the future.
