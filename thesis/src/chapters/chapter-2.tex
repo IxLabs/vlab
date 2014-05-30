@@ -1,27 +1,63 @@
 \chapter{State of the Art}
 \label{chapter:Chapter 2}
 
-\todo{* descriere pe larg a solutiilor exisnte (introduse la capitolul 1)}
-
-\todo{Subcapitole: 1) Mininet --> trecere la soluția bazată pe virtualizare la nivelul OS 2) Qemu}
+In \labelindexref{Chapter}{chapter:intro} some existing software products have been mentioned.
+These can be used for creating a testing environment for network modules.
+This chapter will focus on presenting how these tools work, what are their disadvantages and then continue with the new features that are introduced in \project.
 
 \section{VMware and VirtualBox}
 \label{sec:vmw-vbox}
 
-\todo{Present shortcomings of both technologies}
+VMware is a company that offers two solutions for virtualization: VMware Workstation and VMware Player, the former being offered only with paid license, while the latter can also be downloaded freely for non-commercial use.
+Anyway, in most scenarios the free version should suffice for the needs of creating a testing environment by running multiple virtual machines and configuring the network communication between them accordingly.
+
+VirtualBox is a product similar with VMware Player, currently developed and maintained by Oracle.
+Even though it was initially released under a proprietary license by innotek GmbH,  Oracle is offering it as an open-source product under GNU GPLv2 license\footnote{\url{http://www.gnu.org/licenses/gpl-2.0.html}}.
+Its name was also changed Oracle VM VirtualBox.
+
+While both products are very good for their purpose, virtualization, because of being full featured they tend to be heavyweight when it comes to the amount of resources used and the time needed for configuring a machine to be started.
+Either of them needs quite a lot of RAM. On top of the memory consumption from the application itself, one needs at least 192MB of RAM for each virtual machine.
+Usually the quantity needed for a basic installation of Ubuntu Server \cite{ubuntu-sysreq} on either a physical or a virtual machine is between 256MB and 512MB.
+Besides the huge amount of RAM needed, these solutions also need a lot of disk space for each virtual machine.
+That basic installation of Ubuntu Server should have no less than 700MB of Hard Drive space.
+So, if we want to run only 10 basic virtual machines we would need at least 7GB of Hard Drive space and at least 2GB of RAM.
+Although there is an option to use copy-on-write disk images to reduce the space usage, it is still required to have at least one full disk image for one VM instance.
+
+Further on, every created machine would need an operating system to be installed, and configured according to the network topology that is needed, which is a time consuming task and it must be avoided or automated at all cost.
+This was another disadvantage of using these solutions for virtualization, as they were too heavy and difficult to setup for a testing environment.
 
 \section{Mininet}
 \label{sec:mininet}
 
-\todo{What doesn't Mininet that we need (testing kernel modules)}
+The second solution for creating a testing environment is Mininet, introduced in \labelindexref{Section}{sub-sec:proto-testing-mininet}.
+It is an application written in Python\footnote{\url{https://www.python.org/}} for creating a realistic virtual network, that runs on a single machine, for example a laptop, with only one command.
+It can handle several sorts of nodes that can be in a network, like switches, hosts or controllers and it is very easily configurable, either via its CLI, or through its configuration files.
+One can create topologies programmatically, via Mininet's API, by simply instantiating a \texttt{Topo} object and calling the methods corresponding to adding the desired nodes or links.
+
+All in all, Mininet does a good job for simulating a network, but it cannot run kernel modules tests.
+Because it uses virtualization at process level, it is limited only to user space applications.
+This means that every node is a process in its own namespace on the host machine, that has its own configuration, but can only execute applications that exist on the host machine.
+
+Each one of these shortcomings leads to the need for using system level virtualization, which is exactly what VMware and VirtualBox are doing.
+But it was already mentioned that these two solutions have their own shortcomings, leading to the conclusion that there needs to be something else to be used for this kind of virtualization.
+Indeed, there is QEMU, which offers mostly the same features as the other applications, but it is much easier to configure, leading to this paper's topic, \project, which uses QEMU for creating the hosts.
 
 % Possible other solutions go here TODO
 
 \section{What new features introduces vLab?}
 \label{sec:vlab-new-features}
 
-\todo{ce aducem nou cu acest proiect (testare protocoale implementate in
-kernel, creare
-de config-uri pentru retele, toate lucrurile care nu-s bune la 2.1/2.2
-sunt feature-uri pentru
-noi)}
+\project\ is a new project that adds the possibility to test network protocols implemented in kernel, which could not be made with any of the other solutions in an easy and reliable manner.
+This is the most important feature that \project\ brings, along with an easy way of specifying network topologies through configuration files.
+
+Basically, all the negative aspects mentioned about the existing solutions are handled gracefully in \project, as it combines the speed of Mininet with very easily configurable network topologies and the virtualization offered by QEMU with its low resource consumption.
+Instead of using virtual disks for each node, \project\ uses a shared folder from where the kernel and other modules are loaded.
+This is because QEMU allows for a virtual machine to start simply by specifying the image of the Linux Kernel\footnote{\url{https://www.kernel.org/}} and the root mount point.
+Thus, the VM can share everything from the host and save a lot of disk space, at the same time running its own kernel, with its own network configuration, etc.
+
+There is also a huge saving in terms of RAM usage, depending on the needs of the modules that need to be tested.
+With the default configuration of the Linux Kernel, a host can easily run with only 128MB of RAM, which means a lot less than what a solution based on VMware or VirtualBox would have needed, as most tests do not need all the applications that come bundled with a full Linux distribution like Ubuntu Server.
+
+Other features included in \project\ are a CLI from which one can manage the simulated network, the ability to connect through SSH or a serial interface to any host for quick debugging, as well as starting an xterm session from the CLI to every node for convenient remote login sessions.
+
+Every aspect of \project\ will be discussed from the user's perspective in the next chapter, while the implementation details are left for \labelindexref{Chapter}{chapter:Chapter 4}.
