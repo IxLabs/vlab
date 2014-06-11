@@ -66,10 +66,30 @@ vLab> host1 ping host2
 This creates a connection to the machine named \texttt{host1} and runs the command \texttt{ping host2} in the context of the host1 machine, printing the output of the command on \project\ CLI.
 It basically redirects standard error and standard output to \project\ CLI such that the user can see whether he issued a wrong command, or there was an error when running the actual command.
 
-\section{Typical User Activities in \project}
+\section{Typical workflow in \project}
+\label{sec:typical-workflow}
+
+This section presents how actions are linked one to another in \project.
+They are shown graphically in \labelindexref{Figure}{img:activity-overview} for a better understanding.
 
 \fig[scale=0.8]{src/img/diagrams/activity-overview.pdf}{img:activity-overview}{Activity diagram overview}
 
-We have now included \labelindexref{Figure}{img:activity-overview}.
+The entry point of the activity diagram is when the user actually starts the application.
+Further on, the application waits for commands from the user.
+This basically replaces the current terminal where \project\ is run with the internal CLI defined within the application.
+This CLI is responsible for waiting for any input from the user, and then passing the command to the rest of the application.
+The fastest way to get to the final point is to enter the command for terminating the application, which has a couple aliases described in \labelindexref{Chapter}{chapter:Chapter 4}.
 
-TODO
+The other main paths through the application are represented by the commands for starting and stopping the Virtual Machines.
+There is a command that can start every host at once, or another which starts only one host given its hostname.
+While the machines are in the process to be started, the user cannot issue any other new commands, as they would need to be turned on anyway for being able to receive the commands.
+Before actually trying to start a machine, the application verifies whether it was already turned on or not.
+The counterpart of the start command is of course, the stop one, which does the reverse.
+
+Any other command is simply executed and then the output is printed to the console where the CLI is run.
+These kind of instructions represent the part where the user can begin running tests, or do whatever he wants with any of the machines that he just spawned.
+
+\section{Hosts and topologies}
+\label{sec:hosts-and-topologies}
+
+
