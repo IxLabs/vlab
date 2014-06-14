@@ -1,15 +1,6 @@
 \chapter{vLab Overview}
 \label{chapter:Chapter 3}
 
-% \todo{* o descriere din punct de vedere al utilizatorului (user workflow)
-%* diagrame UML (diagrame de interactiune)
-%* ce se intampla in spate (dar la nivel general) cand adaugi un host,
-%un switch etc.
-%* momentan facem configurile de mana (avem niste default-uri) insa
-%utilizatorul poate
-%folosi o interfata grafica (MiniEdit) deja existenta pentru a crea configuratii.
-%}
-
 This chapter aims to provide a broad view of the \project\ application in terms of how the user can interact with it, what are the main use cases and how it works in general.
 The focus is on who can use \project\ and what can one do with the application, namely what are the main use cases for it.
 Then, a short description about what actually happens in the back-end is made for the user to better understand the workflow.
@@ -49,7 +40,7 @@ Basically once starting an Xterm session on a VM, the user has full access to th
 
 Also, the user has the possibility to open several Xterm sessions on the same VM, such that he can do some tests that involve using two or more terminals to be opened at a time.
 
-\subsection{Running commands on VMs}
+\subsection{Running Commands on VMs}
 \label{sub-sec:run-cmd}
 
 \fig[scale=1]{src/img/diagrams/usecase-run-cmd.pdf}{img:usecase-run-cmd}{Running a command on VMs}
@@ -66,7 +57,7 @@ vLab> host1 ping host2
 This creates a connection to the machine named \texttt{host1} and runs the command \texttt{ping host2} in the context of the host1 machine, printing the output of the command on \project\ CLI.
 It basically redirects standard error and standard output to \project\ CLI such that the user can see whether he issued a wrong command, or there was an error when running the actual command.
 
-\section{Typical workflow in \project}
+\section{Typical Workflow in \project}
 \label{sec:typical-workflow}
 
 This section presents how actions are linked one to another in \project.
@@ -89,14 +80,45 @@ The counterpart of the start command is of course, the stop one, which does the 
 Any other command is simply executed and then the output is printed to the console where the CLI is run.
 These kind of instructions represent the part where the user can begin running tests, or do whatever he wants with any of the machines that he just spawned.
 
-\section{Hosts and topologies}
-\label{sec:hosts-and-topologies}
+\section{Hosts and Topologies}
+\label{sec:hosts-and-topologies} 
 
 One of the main features of \project\ is the ability to create different network topologies in a simple manner, through configuration files.
 It is designed such that one can create an entire laboratory with virtual computers linked together in different ways in just a matter of minutes.
+This is achieved thanks to the simple manner in which the configuration files are constructed.
 
-\todo{Discuss about MiniEdit here.}
+\subsection{Generic Network Topologies}
+\label{sub-sec:generic-network-topologies}
+
+These configuration files for the network topology can be created either manually, starting from an existing example, or they can be generated from an open source visual tool named MiniEdit\footnote{\url{http://techandtrains.com/category/miniedit/}}.
+It was originally created for Mininet, about which we discussed in \labelindexref{Section}{sec:mininet}.
+\project\ was designed with compatibility in mind, thus the configuration files for topologies are mostly identical with those generated from MiniEdit, making it possible for the user to generate them in a more user friendly manner, from a Graphical User Interface tool.
 
 \fig[scale=0.8]{src/img/mini-edit-topology.pdf}{img:mini-edit-topology}{Topology generated with MiniEdit}
 
-The topology configuration file generated from \labelindexref{Figure}{img:mini-edit-topology} can be found entirely in \labelindexref{Listing}{lst:config-one-switch-two-hosts}.
+In \labelindexref{Figure}{img:mini-edit-topology} MiniEdit can be seen in action while creating a small topology, with two Hosts connected directly to a Switch.
+This can be achieved by simply dragging the components on the drawing pane, and then exporting the configuration to a JSON\footnote{\url{http://json.org/}} file.
+The file generated for this particular topology can be found entirely in the Appendix, \labelindexref{Listing}{lst:config-one-switch-two-hosts}.
+
+As this project aims to give the users the opportunity to spend their time effectively, making it possible to generate topologies from an external tool was a must have feature, as they could have a better view of what network they are designing for their testing purpose.
+Although this offers a great advantage, it is not as flexible as the manual configuration which this project also supports.
+
+\subsection{Host Specific Configurations}
+\label{sub-sec:host-specific-configurations}
+
+Besides the topologies, this application also needs another type of configuration file, which specifies various parameters, like where to load the Linux Kernel image from, how much RAM should be allocated for each Virtual Machine that represents a host and others.
+A more detailed description of the VM specific configurations is given in \labelindexref{Section}{sec:arh-overview} which defines the architecture of this application.
+
+This type of configurations is \project\ specific, so currently they can only be edited manually, as there is no visual tool implemented yet to allow for friendly configurations.
+Even so, the file format is the same as for topologies, namely JSON, which is a simple enough format that should be easily understood by a developer that is trying to test network modules and therefore has some knowledge of how various configuration formats work.
+
+As a short preview of what happens when a new Host is added to a topology in this application, one can imagine a box that is a real computer, which has several input/output ports and some network card with which it communicates to the rest of the world.
+A Virtual Machine performs exactly this set of interactions, but in a way that it simulates the real hardware in software.
+This is why we can have multiple instances of an operating system being run on the same physical machine at the same time.
+Continuing with the box analogy, the computer that hosts the VMs uses a virtualization software that actually creates these boxes, allocates the necessary resources and manages them accordingly.
+From the perspective of the user of this application, all this is transparent.
+The user only knows about hosts, which can be turned on, ran for any amount of time with any kind of tests, and then turned off.
+
+These hosts are automatically linked to their neighbors within the topology at startup, and if the network level configurations are done properly and if their drivers are working well, then they should be able to communicate with each other.
+After having a working configuration, then the developer could begin to change the modules with the ones that he is developing and begin testing them.
+This should basically all that the user needs to do for setting up the environment and running his tests.
