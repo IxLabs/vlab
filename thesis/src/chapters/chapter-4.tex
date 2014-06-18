@@ -1,28 +1,64 @@
 \chapter{vLab Architecture}
 \label{chapter:Chapter 4}
 
-\todo{Describe briefly that first section is for the arhitecture overview, while the
-second section is for implementation details}
+As the name specifies, this chapter will cover architectural and implementation details.
+First, a detailed overview of the architecture is presented, which describes what are the main modules and how they interact with each other and some other details regarding configuration files introduced in earlier chapters.
+Next, in \labelindexref{Section}{sec:implementation} will be presented in detail the application's internals.
 
 \section{Architecture Overview}
 \label{sec:arh-overview}
 
-\todo{
-(prima parte arhitectura)
-* descriere config-uri, json
-* cum arata un setup simpl (switch + host-uri).
-* arhitectura de clase
-* cum se creaza "masinile virtuale" (vm.json)
-** clasa Node
-** clasa Host, clasa Switch
-* cum se citesc configurile si cum se creaza node-urile din configuri
-}
+%\todo{
+%(prima parte arhitectura)
+%* descriere config-uri, json
+%* cum arata un setup simplu (switch + host-uri).
+%* arhitectura de clase
+%* cum se creaza "masinile virtuale" (vm.json)
+%** clasa Node
+%** clasa Host, clasa Switch
+%* cum se citesc configurile si cum se creaza node-urile din configuri
+%}
 
-We have now included \labelindexref{Figure}{img:class-overview-simplified}.
+This section is going to be introduced by \labelindexref{Figure}{img:class-overview-simplified}, which shows a Class Diagram that describes the overview of the application architecture.
+It shows a simplified version of the full class-diagram for a better understanding of the structure while not losing the important aspects.
 
 \fig[scale=0.65]{src/img/diagrams/class-overview-simplified.pdf}{img:class-overview-simplified}{Class diagram overview simplified}
 
-TODO
+\subsection{From Config File to Execution}
+\label{sub-sec:arh-config-to-exec}
+
+The entry point to this application are the \textbf{config files} which in general terms consist of one or more persistent information about some state of a given application.
+In \labelindexref{Section}{sec:hosts-and-topologies} it can be clearly seen that this part is encapsulated inside the \texttt{VmConfig} class, which holds the informations from each config file.
+These configurations are vital for the ability to easily specify different kinds of network topologies and types of Hosts.
+
+When \project\ is run, the first thing that is created is the \texttt{CLI} class which then instantiates \texttt{Vlab}, an object that holds every necessary information for this application.
+Then, all the config files are read from disk, parsed and then according to these files are created all the \texttt{Node} objects, which can be either instances of \texttt{Switch} or \texttt{Host} classes.
+From this point, it is up to the user what he does next, as he can choose to start the VMs, and then run some commands on them, or simply exit the application.
+The user commands are parsed with help from the CLI.
+
+\subsection{A More Detailed View of Configs}
+\label{sub-sec:configs-detalied}
+
+\labelindexref{Section}{sub-sec:generic-network-topologies} introduced the configuration for network topologies and how these can be generated with an external tool, but it did not specify their exact format nor other details.
+The file type for every config of \project\ is JSON, which is a very simple format derived from how objects are represented in JavaScript\footnote{\url{http://msdn.microsoft.com/en-us/library/bb299886.aspx}}.
+One such file is given as an example for a simple topology in \labelindexref{Listing}{lst:config-one-switch-two-hosts}.
+Drilling down a little deeper within this file, there can be found three main objects, which are actually arrays that contain other objects:
+\begin{itemize}
+  \item \texttt{Host} specific information
+  \item \texttt{Switch} object details
+  \item Links between \texttt{Nodes}
+\end{itemize}
+
+\todo{Add some more explanation on what each array contains and then talk about vm.json config file}
+
+\subsection{Classes Description and Interaction}
+\label{sub-sec:classes-description-interaction}
+
+\todo{Continue the class description from chapter introduction}
+
+\subsubsection{Host Class}
+
+\subsubsection{Switch Class}
 
 \section{Implementation}
 \label{sec:implementation}
