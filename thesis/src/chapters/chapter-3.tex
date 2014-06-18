@@ -81,7 +81,7 @@ Any other command is simply executed and then the output is printed to the conso
 These kind of instructions represent the part where the user can begin running tests, or do whatever he wants with any of the machines that he just spawned.
 
 \section{Hosts and Topologies}
-\label{sec:hosts-and-topologies} 
+\label{sec:hosts-and-topologies}
 
 One of the main features of \project\ is the ability to create different network topologies in a simple manner, through configuration files.
 It is designed such that one can create an entire laboratory with virtual computers linked together in different ways in just a matter of minutes.
@@ -109,7 +109,7 @@ Although this offers a great advantage, it is not as flexible as the manual conf
 Besides the topologies, this application also needs another type of configuration file, which specifies various parameters, like where to load the Linux Kernel image from, how much RAM should be allocated for each Virtual Machine that represents a host and others.
 A more detailed description of the VM specific configurations is given in \labelindexref{Section}{sec:arh-overview} which defines the architecture of this application.
 
-This type of configurations is \project\ specific, so currently they can only be edited manually, as there is no visual tool implemented yet to allow for friendly configurations.
+This type of configurations is \project\ specific, so currently they can only be edited manually, as there is no visual tool implemented yet to allow for user-friendly configurations.
 Even so, the file format is the same as for topologies, namely JSON, which is a simple enough format that should be easily understood by a developer that is trying to test network modules and therefore has some knowledge of how various configuration formats work.
 
 As a short preview of what happens when a new Host is added to a topology in this application, one can imagine a box that is a real computer, which has several input/output ports and some network card with which it communicates to the rest of the world.
@@ -121,4 +121,4 @@ The user only knows about hosts, which can be turned on, ran for any amount of t
 
 These hosts are automatically linked to their neighbors within the topology at startup, and if the network level configurations are done properly and if their drivers are working well, then they should be able to communicate with each other.
 After having a working configuration, then the developer could begin to change the modules with the ones that he is developing and begin testing them.
-This should basically all that the user needs to do for setting up the environment and running his tests.
+This should basically be all that the user needs to do for setting up the environment and running his tests.
