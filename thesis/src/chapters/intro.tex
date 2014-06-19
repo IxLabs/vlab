@@ -2,8 +2,8 @@
 \label{chapter:intro}
 
 As more and more kinds of hardware parts are created, we need to write more software to make use of that hardware.
-The more we write software, the more testing needs to be made in order to ensure high quality products are made.
-Testing kernel modules is especially important, because they are among the most vital parts of a computer system.
+The more we write software, the more testing needs to be done in order to ensure high quality products are created \cite{myers11}.
+Testing kernel modules is especially important, because they are among the most vital parts of a computer system \cite{bligh06}.
 It is enough for one mistake to be made in a kernel module for the system to be
 destabilized, or even worse, for the hardware components to be destroyed.
 Thus, care must be taken when writing this kind of software.
@@ -19,7 +19,7 @@ When more nodes are needed, things tend to be troublesome for the developer, as 
 \section{How Is a Protocol Tested?}
 \label{sec:proto-testing}
 
-It has already been mentioned that modules need to be tested thoroughly. But how is actually a network module, or more specifically, a protocol tested?
+As we said above, the modules need to be tested thoroughly. But how is actually a network module, or more specifically, a protocol tested?
 Basically, this requires two or more nodes that need to be interconnected with some kind of network cards.
 They can be either switches or hosts that communicate through the network cards, using the kernel module or driver under test.
 After establishing the ``physical'' interconnection, one can run a series of tests to make sure that both the drivers and the protocol are correctly implemented.
@@ -48,10 +48,7 @@ In this case, using real hardware is not helpful, as it is too difficult to setu
 \subsection{Existing Virtualization Solutions}
 \label{sub-sec:proto-testing-vms}
 
-Another approach that is very handy these days is using virtualization\footnote{\url{http://en.wikipedia.org/wiki/Virtualization}}.\nocite{smith05}
-\nocite{benvenuti05}
-\nocite{qemu-kvm}
-\nocite{urse11}
+Another approach that is very handy these days is using virtualization\footnote{\url{http://en.wikipedia.org/wiki/Virtualization}}.
 This implies using a physical computer that hosts one or more virtualized computers, named guests.
 This is achieved by using solutions provided by VMware or VirtualBox that can run several operating systems simultaneously on the same physical machine, as if they were installed on separate machines.
 
