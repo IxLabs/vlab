@@ -19,10 +19,10 @@ Taking these facts into consideration, there are several use cases for \project\
 \subsection{Turning On or Off the VMs}
 \label{sub-sec:turning-on-off-vms}
 
-\fig[scale=1]{src/img/diagrams/usecase-start-stop.pdf}{img:usecase-start-stop}{Starting/Stopping VMs Usecase Diagram}
+\fig[scale=1]{src/img/diagrams/usecases-grouped.pdf}{img:usecases-grouped}{\project\ Usecase Diagram}
 
 This scenario presents the user who normally needs to start or stop the Virtual Machines that he needs for testing.
-It is exactly what \labelindexref{Figure}{img:usecase-start-stop} expresses, having the developer centered on either trying to turn the environment on and then doing some other tasks like testing or running debugging command and then stopping it when he's done.
+It is exactly what the first branch in \labelindexref{Figure}{img:usecases-grouped} expresses, having the developer centered on either trying to turn the environment on and then doing some other tasks like testing or running debugging command and then stopping it when he's done.
 He can either start or stop every Virtual Machine, which in \project\ are referred to as Hosts, or he can choose which one to turn on or off individually, in separate commands.
 This first case would be the preferred one for automated testing, while the latter would only be used for debugging purposes, let's say one would need to start only some machines from a given network topology and then run debugging commands like \texttt{tcpdump} to check only that part in the topology.
 
@@ -32,9 +32,7 @@ This behavior not only easier to implement and test, but it is also the best cho
 \subsection{Spawning an Xterm Session on Each VM}
 \label{sub-sec:spawn-xterm}
 
-\fig[scale=1]{src/img/diagrams/usecase-spawn-xterm.pdf}{img:usecase-spawn-xterm}{Spawning a New Xterm Session}
-
-Another use case is presented in \labelindexref{Figure}{img:usecase-spawn-xterm}, which describe how the user can spawn Xterm sessions for each machine.
+Another use case is presented in the last branch of  \labelindexref{Figure}{img:usecases-grouped}, which describe how the user can spawn Xterm sessions for each machine.
 This is a handy feature when the user needs to quickly get access to some, or all VMs at once.
 Basically once starting an Xterm session on a VM, the user has full access to that machine, such that he can easily view its state through different commands available on any Linux based operating system.
 
@@ -43,10 +41,8 @@ Also, the user has the possibility to open several Xterm sessions on the same VM
 \subsection{Running Commands on VMs}
 \label{sub-sec:run-cmd}
 
-\fig[scale=1]{src/img/diagrams/usecase-run-cmd.pdf}{img:usecase-run-cmd}{Running a command on VMs}
-
 Besides spawning Xterm sessions to control the Hosts, the user also has the option to send commands directly through \project\ CLI.
-This use case, described in \labelindexref{Figure}{img:usecase-run-cmd}, offers another simple way for quick sending commands to Hosts, without the need to actually connect to them via SSH or Xterm sessions.
+This use case, shown in \labelindexref{Figure}{img:usecases-grouped} as well, offers another simple way for quick sending commands to Hosts, without the need to actually connect to them via SSH or Xterm sessions.
 The feature is similar to the way Mininet handles the sending of commands to hosts, being able to write something like this:
 
 \lstset{label=lst:ping-example}
