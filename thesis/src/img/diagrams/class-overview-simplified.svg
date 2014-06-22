@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Arial" font-size="13" width="813" height="441">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Arial" font-size="13" width="815" height="443">
 	<desc>UML class diagram vLab</desc>
 	<g id="_79AT4NCjEDG2v7FgeYDcNw">
 		<defs>
@@ -19,7 +19,7 @@
 		<g id="_QAq2gNCkEDG2v7FgeYDcNw">
 			<rect x="2" y="2" width="50" height="28" rx="5" ry="5" fill="url(#packageGradient)" stroke="#c2b79f" stroke-width="1" />
 			<text x="8" y="18" font-weight="bold" fill="#806221">vLab</text>
-			<rect x="2" y="26" width="791" height="395" rx="0" ry="0" fill="url(#packageGradient)" stroke="#c2b79f" stroke-width="1" />
+			<rect x="2" y="26" width="793" height="397" rx="0" ry="0" fill="url(#packageGradient)" stroke="#c2b79f" stroke-width="1" />
 			
 		</g>
 		<g id="_T9kw8NCkEDG2v7FgeYDcNw">
@@ -209,6 +209,21 @@
 			</g>
 			
 		</g>
+		<g id="_PxaTwdwvEDGRBOOi98GSmQ">
+			<polyline fill="none" stroke-width="1" stroke="#000000" points="715,221 657,221" />
+			<g transform="translate(715,221)">
+				<g transform="rotate(90)">
+					<polygon fill="#000000" stroke-width="1" stroke="#000000" points="-4,8 0,0 4,8 0, 16" />
+					
+				</g>
+				
+			</g>
+			
+		</g>
+		<g id="_PxaTwdwvEDGRBOOi98GSmQ">
+			<polyline fill="none" stroke-width="1" stroke="#000000" points="657,221 657,274" />
+			
+		</g>
 		<text x="221" y="100" fill="#000000">vlab</text>
 		<text x="223" y="130" fill="#000000">1</text>
 		<text x="172" y="130" fill="#000000">CLI</text>
@@ -222,13 +237,17 @@
 		<text x="195" y="374" fill="#000000">vmConfigLoader</text>
 		<text x="200" y="319" fill="#000000">0..1</text>
 		<text x="490" y="350" fill="#000000">vmConfig</text>
-		<text x="475" y="322" fill="#000000">1</text>
+		<text x="492" y="325" fill="#000000">1</text>
 		<text x="526" y="320" fill="#000000">vmHandler</text>
 		<text x="546" y="352" fill="#000000">1</text>
 		<text x="415" y="175" fill="#000000">switch</text>
 		<text x="410" y="206" fill="#000000">*</text>
 		<text x="369" y="179" fill="#000000">vlab</text>
 		<text x="377" y="150" fill="#000000">1</text>
+		<text x="588" y="266" fill="#000000">vmHandler</text>
+		<text x="660" y="268" fill="#000000">1</text>
+		<text x="676" y="209" fill="#000000">host</text>
+		<text x="685" y="240" fill="#000000">1</text>
 		
 	</g>
 	
