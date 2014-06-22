@@ -39,26 +39,97 @@ The user commands are parsed with help from the CLI.
 \subsection{A More Detailed View of Configs}
 \label{sub-sec:configs-detalied}
 
+\subsubsection{Topology Configs}
+\label{sub-sub-sec:topology-configs}
+
 \labelindexref{Section}{sub-sec:generic-network-topologies} introduced the configuration for network topologies and how these can be generated with an external tool, but it did not specify their exact format nor other details.
 The file type for every config of \project\ is JSON, which is a very simple format derived from how objects are represented in JavaScript\footnote{\url{http://msdn.microsoft.com/en-us/library/bb299886.aspx}}.
 One such file is given as an example for a simple topology in \labelindexref{Listing}{lst:config-one-switch-two-hosts}.
 Drilling down a little deeper within this file, there can be found three main objects, which are actually arrays that contain other objects:
+
 \begin{itemize}
-  \item \texttt{Host} specific information
+  \item \texttt{Host} object details related to test interface
   \item \texttt{Switch} object details
-  \item Links between \texttt{Nodes}
+  \item Links between \texttt{Nodes} and \texttt{Switches}
 \end{itemize}
 
-\todo{Add some more explanation on what each array contains and then talk about vm.json config file}
+\texttt{Host} objects from this config file contain several options, but the only ones that are really used by \project\ are the hostname and the ip, which serve as a means of specifying the IP address which will be used on the testing interface, as well as how the \texttt{Host} will be named.
+Besides these two properties, the number of Virtual Machines that need to be created is inferred from the number of \texttt{Hosts}, avoiding the usage of more resources than needed for the purpose of the given test case.
+Other informations more specific to \texttt{Hosts} that are topology independent are described in another config file, detailed in the next subsection.
+
+For \texttt{Switches} there is no need to use anything else other than the hostname option, which has the same purpose as the one for \texttt{Hosts}.
+In future versions of \project\ there could be other options to be specified, but for this implementation is limited to the use of a hostname.
+
+The links between the \texttt{Nodes} are defined as a list of adjacency in the config file, specifying for each connection the source and destination.
+Very intuitively, the names of the fields are \texttt{src} and \texttt{dest}, the values having to be specified by the hostnames of the corresponding \texttt{Nodes} that are linked together.
+
+Any other field defined in the topology config file is not related to \project\ and was initially designed for MiniEdit, which saves more informations about the position on the screen of the nodes, thus are not needed here.
+
+\subsubsection{Host Specific Configs}
+\label{sub-sub-sec:vm-configs}
+
+Besides specifying a topology, one must also include a few other configurations specific to \project\ implementation, like where to load the kernel image from, how much RAM to use for \texttt{Hosts}, etc.
+This VM config file is made from a couple main properties that are simple key-value pairs, like \texttt{qemu_binary} which specifies which version of Qemu to be run, \texttt{max_ram} which represents the maximum amount of RAM available for each VM and \texttt{base_name} which is used for generating host specific file names.
+
+One of the most important parts of this config is the \texttt{kernel_image} object, which has a few properties, like \texttt{dir} and \texttt{image_name} which together specify how is the Linux Kernel image named and where to find it on disk.
+Also, there are a couple parameters specific to kernel \texttt{init}, like what script to run at init and where to load it from, where to mount the root and in what mode, some of which being specific to how Qemu system creates shared folders between the physical machine.
+The mechanism of folder sharing will be described in more detail in \labelindexref{Section}{sec:implementation} which treats other particularities.
+
+Further on, the file needs to contain some other properties within an array named \texttt{properties}, even though not all of them are required.
+These objects are defined to be extensible, such that when new kinds of properties need to be added, little to no changes to be made in the code of the application.
+The fields that are mandatory for every property are \texttt{dev}, \texttt{type} and \texttt{id} which define the device and the logical type used in Qemu, and a unique identifier for each property.
+Based on the device and type, other fields must be defined, like a \texttt{role} and a \texttt{socket_management} when the \texttt{dev} is set to the \texttt{chardev} value.
+For \texttt{fsdev} devices, there needs to be set the \texttt{path} \texttt{mount_tag}, \texttt{device_id} and \texttt{device_type} fields to corresponding values.
+The last implemented type of device is \texttt{netdev} which defines a virtualized networking device.
+All these types can be seen more clearly in the sample configuration file in \labelindexref{Listing}{lst:vm-config}.
 
 \subsection{Classes Description and Interaction}
 \label{sub-sec:classes-description-interaction}
 
-\todo{Continue the class description from chapter introduction}
+At the beginning of this chapter we introduced a simplified Class Diagram for \project\ in \labelindexref{Figure}{img:class-overview-simplified}.
+This section aims to explain the connections of these classes and their roles within the entire system.
+We barely touched the surface of the application by presenting configs and what they need to contain.
+
+\subsubsection{CLI and Vlab Classes}
+\label{sub-sub-sec:cli-vlab-classes}
+
+The core class in this diagram is \texttt{Vlab}, which is responsible to coordinate the logic of the structure and to create all the necessary objects in the right order while running.
+It receives commands from the user with help from the \texttt{CLI} class, which acts as an adapter, intercepting every request from the user and passing them to the other objects that actually implement the command themselves.
+In fact, the \texttt{CLI} implementation inherits some behavior from the \texttt{Cmd} class in the Python Standard Library\footnote{\url{https://docs.python.org/2/library/cmd.html}} which is a helper class intended to be a starting point for line-oriented command interpreters.
+
+\texttt{Vlab} basically reads the config files when it is created with help from \texttt{VmConfigLoader} class, and then creates exactly the number \texttt{Hosts} and \texttt{Switches} defined in the topology.
+When it receives the \texttt{start} or \texttt{stop} commands from \texttt{CLI}, it then simply iterates over the \texttt{Nodes} and calls the corresponding generic method on those objects.
+It was designed such that the config files can be reloaded without actually restarting the entire application.
+Though, the nodes must be stopped before reloading the configs, otherwise the user may end up with some nodes that cannot be stopped from within \project\ anymore.
+
+Next, the logic behind topology nodes is encapsulated within the \texttt{Node} interface, which defines the basic operations that each entity should be able to execute.
+Some nodes may have some additional operations associated with them, thus they will implement the \texttt{Node} class and add their own capabilities as necessary.
+This pattern is used in order to make the application extensible and easy to maintain when new types of nodes must be supported.
 
 \subsubsection{Host Class}
+\label{sub-sub-sec:host-class}
+
+One of the \texttt{Node} implementations is the \texttt{Host} class.
+It encapsulates the behavior of a virtualized host, which in Mininet was a simple process and in \project\ is a fully capable Virtual Machine that runs a Linux Kenrnel.
+It's responsibility is to take care of the representation of an end-user machine which knows how to start and stop itself and how to receive commands and execute them reliably.
+Although the interface is pretty simple, the inner representation is a little more complex and here is where the \texttt{VmHandler} class comes handful by handling all the communication between \project\ and the corresponding Qemu VM.
+Before starting the VM, the \texttt{VmHandler} requests the command line that needs to be run at startup from its \texttt{VmConfig} instance and only executes that command as a new process as if the user himself typed that command in a terminal.
+
+After starting it, the \texttt{Host} is completely detached from the VM with which it can only communicate via special messages sent either through a serial interface or through a SSH connection.
+More details on this topic will be covered in \labelindexref{Section}{sec:implementation}.
+
+Also, the networking interfaces need to be configured as well and this is accomplished after the Linux Kernel has been initialized only, such that the VM is running and can receive messages from the object that created it.
+How is this synchronization implemented and other details are covered as well in \labelindexref{Section}{sec:implementation}.
 
 \subsubsection{Switch Class}
+\label{sub-sub-sec:switch-class}
+
+The other implementation of \texttt{Node} is the class named \texttt{Switch}, which emulates the physical device that interconnects two or more other nodes.
+It is implemented rather simple, as it uses the \texttt{brctl}\footnote{\url{http://linuxcommand.org/man_pages/brctl8.html}} command, which acts as a simple bridge.
+After it is started, it can have attached to it several end-point \texttt{Hosts} which in the end will have simulated physical connectivity from one to another, the same way a physical switch connects several machines with Ethernet cables.\footnote{\url{http://www.tldp.org/HOWTO/BRIDGE-STP-HOWTO/set-up-the-bridge.html}}
+
+By using the above command for simulating a switch, \project\ simplifies its architecture and resource consumption, as there is no need to spawn yet another VM just for switching.
+This is of course possible because the Linux Kernel has this feature natively implemented and it doesn't require other settings to be done.
 
 \section{Implementation}
 \label{sec:implementation}
