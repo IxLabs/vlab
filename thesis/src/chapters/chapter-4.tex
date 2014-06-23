@@ -3,7 +3,7 @@
 
 As the name specifies, this chapter will cover architectural and implementation details.
 First, a detailed overview of the architecture is presented, which describes what are the main modules and how they interact with each other and some other details regarding configuration files introduced in earlier chapters.
-Next, in \labelindexref{Section}{sec:implementation} will be presented in detail the application's internals.
+Next, the application internals will be presented in detail in \labelindexref{Section}{sec:implementation} .
 
 \section{Architecture Overview}
 \label{sec:arh-overview}
@@ -32,7 +32,7 @@ In \labelindexref{Section}{sec:hosts-and-topologies} it can be clearly seen that
 These configurations are vital for the ability to easily specify different kinds of network topologies and types of Hosts.
 
 When \project\ is run, the first thing that is created is the \texttt{CLI} class which then instantiates \texttt{Vlab}, an object that holds every necessary information for this application.
-Then, all the config files are read from disk, parsed and then according to these files are created all the \texttt{Node} objects, which can be either instances of \texttt{Switch} or \texttt{Host} classes.
+Then, all the config files are read from disk, parsed and then all the \texttt{Node} objects  are created according to these files. The \texttt{Nodes} can be either instances of \texttt{Switch} or \texttt{Host} classes.
 From this point, it is up to the user what he does next, as he can choose to start the VMs, and then run some commands on them, or simply exit the application.
 The user commands are parsed with help from the CLI.
 
@@ -125,14 +125,33 @@ How is this synchronization implemented and other details are covered as well in
 \label{sub-sub-sec:switch-class}
 
 The other implementation of \texttt{Node} is the class named \texttt{Switch}, which emulates the physical device that interconnects two or more other nodes.
-It is implemented rather simple, as it uses the \texttt{brctl}\footnote{\url{http://linuxcommand.org/man_pages/brctl8.html}} command, which acts as a simple bridge.
-After it is started, it can have attached to it several end-point \texttt{Hosts} which in the end will have simulated physical connectivity from one to another, the same way a physical switch connects several machines with Ethernet cables.\footnote{\url{http://www.tldp.org/HOWTO/BRIDGE-STP-HOWTO/set-up-the-bridge.html}}
-
-By using the above command for simulating a switch, \project\ simplifies its architecture and resource consumption, as there is no need to spawn yet another VM just for switching.
+It is implemented rather simple, as it uses the \texttt{brctl}\footnote{\url{http://linuxcommand.org/man_pages/brctl8.html}} command, which simply configures a bridge.
+By using this command for simulating a switch, \project\ simplifies its architecture and resource consumption, as there is no need to spawn yet another VM just for switching.
 This is of course possible because the Linux Kernel has this feature natively implemented and it doesn't require other settings to be done.
 
-\section{Implementation}
+After the \texttt{Switch} is started, it can have attached to it several end-point \texttt{Hosts} which in the end will have simulated physical connectivity from one to another, the same way a physical switch connects several machines with Ethernet cables.\footnote{\url{http://www.tldp.org/HOWTO/BRIDGE-STP-HOWTO/set-up-the-bridge.html}}
+
+
+\section{Further Implementation Details}
 \label{sec:implementation}
+
+\subsection{Management and Testing Interfaces}
+\label{sub-sec:mgmt-and-testing-intf}
+
+\subsection{Communication With VMs}
+\label{sub-sec:communication-with-vm}
+
+\subsubsection{Qemu Monitor}
+\label{sub-sub-sec:qemu-monitor}
+
+\subsubsection{Administration via SSH}
+\label{sub-sub-sec:admin-SSH}
+
+\subsubsection{Administration via Serial Interface}
+\label{sub-sub-sec:admin-serial}
+
+\subsection{VM Init Script}
+\label{sub-sec:vm-init-script}
 
 \todo{(a doua parte - implementare cu detalii cu tot)
 * module de python
