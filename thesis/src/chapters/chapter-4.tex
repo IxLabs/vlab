@@ -1,23 +1,12 @@
-\chapter{vLab Internals}
+\chapter{\project\ Internals}
 \label{chapter:Chapter 4}
 
 As the name specifies, this chapter will cover architectural and implementation details.
 First, a detailed overview of the architecture is presented, which describes what are the main modules and how they interact with each other and some other details regarding configuration files introduced in earlier chapters.
-Next, the application internals will be presented in detail in \labelindexref{Section}{sec:implementation} .
+Next, the application internals will be presented in detail in \labelindexref{Section}{sec:implementation}.
 
 \section{Architecture Overview}
 \label{sec:arh-overview}
-
-%\todo{
-%(prima parte arhitectura)
-%* descriere config-uri, json
-%* cum arata un setup simplu (switch + host-uri).
-%* arhitectura de clase
-%* cum se creaza "masinile virtuale" (vm.json)
-%** clasa Node
-%** clasa Host, clasa Switch
-%* cum se citesc configurile si cum se creaza node-urile din configuri
-%}
 
 This section is going to be introduced by \labelindexref{Figure}{img:class-overview-simplified}, which shows a Class Diagram that describes the overview of the application architecture.
 It shows a simplified version of the full class-diagram for a better understanding of the structure while not losing the important aspects.
@@ -135,8 +124,28 @@ After the \texttt{Switch} is started, it can have attached to it several end-poi
 \section{Further Implementation Details}
 \label{sec:implementation}
 
+Until now we covered the most important components of \project\ and its architecture.
+This section will focus more on other implementation details which have not been covered yet.
+First, we will discuss some aspects related to interfaces and communication with the VMs and then we will give some details regarding the startup and initialization process.
+The presentation of these particularities is intentionally made in reverse chronological in relation to the states of a VM.
+This is because it is easier to understand the internals if we begin with what the user actually needs to know and continue with the other aspects that are not as important for him.
+
 \subsection{Management and Testing Interfaces}
 \label{sub-sec:mgmt-and-testing-intf}
+
+One of the main things that the user needs to use are the network interfaces created for testing.
+They are the core of this project, as the network modules cannot be tested without the existence of interfaces.
+Every network interface is created on the physical host machine as a \texttt{Tap} device with the \texttt{tunctl}\footnote{\url{http://linux.die.net/man/8/tunctl}} command.
+A broad view of how the entire networking system works in \project\ is presented in \labelindexref{Figure}{img:tap-devices}.
+
+\fig[scale=1.0]{src/img/diagrams/tap-devices.pdf}{img:tap-devices}{Representation of Tap Network Devices}
+
+Following is presented how this system works.
+The physical machine has an interface \texttt{eth0} which communicates with the rest of the world and has several switches attached to it.
+They are created with the already mentioned \texttt{brctl} command.
+Next, for each interface that needs to be created on the Virtual Machines, there must be added a \texttt{tap} interface with the \texttt{tunctl} commands.
+The \texttt{taps} have one end associated with one of the switches and the other end represents the entry point to the VMs.
+To make it possible for the VM to communicate with host machine, the \texttt{tap} and the associated interface on the guest must have IP addresses set within the same network range.\abbrev{IP}{Internet Protocol}
 
 \subsection{Communication With VMs}
 \label{sub-sec:communication-with-vm}
