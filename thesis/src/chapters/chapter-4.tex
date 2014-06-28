@@ -147,28 +147,123 @@ Next, for each interface that needs to be created on the Virtual Machines, there
 The \texttt{taps} have one end associated with one of the switches and the other end represents the entry point to the VMs.
 To make it possible for the VM to communicate with host machine, the \texttt{tap} and the associated interface on the guest must have IP addresses set within the same network range.\abbrev{IP}{Internet Protocol}
 
-\subsection{Communication With VMs}
+\labelindexref{Figure}{img:tap-devices} incorporates only a couple of the entire interfaces that are created for each VM for more clarity.
+Fundamentally, any interface that is added on a guest VM must be paired with a \texttt{tap} interface on the host as described above, though it is not mandatory to use a bridge between the \texttt{taps} and the host's \texttt{eth0} interface.
+The bridges are only used when testing topologies that use switches, thus usually there are some interfaces that will have their \texttt{tap} directly connected to the host.
+
+Besides the testing interfaces, \project\ supplies one management interface for each VM.
+This is in order to give further flexibility to the user if he wants to connect to one VM for debugging via SSH.
+Through this interface are sent all the commands that a user issues in \project\ to a specific \texttt{Host}.
+Also, redundantly, it is provided a serial interface for the same purpose.
+These management interfaces will be treated separately in \labelref{Next Chapter}{sub-sec:communication-with-vm} where we discuss more about the communication and administration of the \texttt{Host} VMs.
+
+\subsection{Management of VMs}
 \label{sub-sec:communication-with-vm}
+
+As we already covered in previous sections, a \texttt{Host} is in fact a VM that is run over Qemu.
+When a \texttt{Host} is started, a new Qemu VM is created with help from the \texttt{VmHandler} class which runs a pretty long command for starting up a new VM.
+Through the parameters of this command one can specify several kinds of interfaces that can be added to the VM and how to interact with them.
+One of these interfaces is the Qemu Monitor presented next.
 
 \subsubsection{Qemu Monitor}
 \label{sub-sub-sec:qemu-monitor}
 
+This is the basic interface provided by Qemu for administrating the type of hardware emulated or virtualized by the VM it is linked to\footnote{\url{http://en.wikibooks.org/wiki/QEMU/Monitor}}.
+Through this interface one can change devices and many properties of the VM.
+More importantly, he can add or remove network interfaces, which are the focus of \project.
+
+By default, Qemu opens a separate window where the Monitor can be accessed.
+Because \project\ aims to automate a lot of work for the user, this window is no longer spawned when booting the VM and instead a new named socket file is created on disk.
+The user can then choose if and when to connect to this interface in order to manually modify the settings of the current Virtual Machine.
+There are many possibilities to connect to this Qemu Monitor \cite{qemu-monitor}, and \project\ chose to use the \texttt{socat} command\footnote{\url{http://manpages.ubuntu.com/manpages/trusty/man1/filan.1.html}} which is the simpler possibility from the many existing.
+Also, another reason for using this mode for connecting to the Qemu Monitor is that it is easier to send the commands programmatically for adding or removing network interfaces at runtime.
+This is actually exactly what \project\ does when a VM is started and is connected to something else in a topology: it sends commands to the Qemu Monitor to create the simulated physical network interface, which is then configured after booting is complete.
+The task of sending commands is accomplished with help from the \texttt{socket} Python module\footnote{\url{https://docs.python.org/2/library/socket.html}} which permits easy interaction with sockets from within the code.
+
+Even though this interface is intended for internal use only, one can still choose to manually connect to it and add or remove network interfaces or other devices on the VM.
+It is just a matter of entering a command like the following:
+
+\lstset{label=lst:socat-example}
+\begin{lstlisting}
+socat - /tmp/VM-test1/vm-monitor-console.socket
+\end{lstlisting}
+
+This command makes the user to connect directly to the serial interface to which the Qemu Monitor is connected, and then he can simply issue the desired requests.
+
 \subsubsection{Administration via SSH}
 \label{sub-sub-sec:admin-SSH}
+
+In \labelindexref{Section}{sub-sec:mgmt-and-testing-intf} we talked about how the interfaces are linked in \project.
+We mentioned that a management Ethernet interface is used.
+It has a fixed IP and a SSH server is running inside the VM such that remote connections can be made through this interface.
+Most of the commands that a user can enter in \project\ CLI are sent through a SSH connection, making it truly flexible.
+Also, as described in \labelindexref{Section}{sub-sec:spawn-xterm}, \project\ can create Xterm connections to each VM.
+These are realized as well by spawning SSH connections to those VMs.
+
+Because we are running a minimal Linux Kernel, we don't actually want a full-featured SSH server, so the first option which we actually chose was to use Dropbear\footnote{\url{https://matt.ucc.asn.au/dropbear/dropbear.html}}, a lightweight server that can be built statically and still uses less than 5MB of disk space.
+The resulting binary is copied to the shared folder of the VMs, meaning that the disk footprint consists just of one binary that is used by every \texttt{Host}, so it is almost unnoticed.
+
+Another reason for the adding the interface for administration vis SSH was the fact that through other means, one could only issue commands without wanting to check back the results.
+With SSH, he can now use more fancy programs remotely, like starting a text editor like Vim\footnote{\url{http://www.vim.org/}} or checking system status with \texttt{htop}\footnote{\url{http://hisham.hm/htop/}}.
+Of course, \project\ doesn't need text editors and other programs to be run, but needs a reliable channel for communication with the \texttt{Hosts} and SSH represents one of the best candidates for this purpose.
+
+For being able to actually use it, one must either connect to the remote host with a known password, or via the public-key authentication mechanism\footnote{\url{https://help.ubuntu.com/community/SSH/OpenSSH/Keys}}.
+Using a password would simply break any means of automation, so the actual option was to use public and private key pairs.
+The public key would be appended in the \texttt{authorized_keys} file of each \texttt{Host}, which file is actually loaded directly in memory for avoiding conflicts, and the private key would stay in a separate file in the shared folder or anywhere else.
+This mechanism ensures that the SSH connections will work without being prompted for a password.
+Even though the user is not asked for a password anymore, this doesn't solve the problem where he is required to add the \texttt{Host} to the \texttt{known_hosts} file the first time he connects to that \texttt{Host}.
+While the user can manually enter ``yes'' as an answer for that prompt, it still breaks scripts and automated thinks that need SSH.
+Though this seemed like a dead end, we found \texttt{paramiko}\footnote{\url{http://www.paramiko.org/}}, a Python module that implements the SSHv2 protocol.
+It not only provides an easy to use interface for interaction with SSH connections, but it also supports a mode in which it does not require the \texttt{known_hosts} file.
+This basically solved all the problems related to interactive prompts that the SSH protocol uses.
+
+Further on, after having this issue solved, we found another problem.
+When connecting to a remote shell through SSH, the \texttt{PATH} environment variable is not the same with the one that is created for a normal shell.
+This is because the SSH command execution shell is a non-interactive shell and does not use the \texttt{\textasciitilde/.bashrc} or \texttt{\textasciitilde/.profile} files, but searches through the \texttt{BASH_ENV} variable for the file to be read and executed, but \texttt{PATH} is not used to search for the file name\footnote{\url{http://stackoverflow.com/questions/216202}}.
+The obvious solution for this is to prepend every command that is sent from \project\ to \texttt{Hosts} like in the following example where the command needed to be executed is a simple \texttt{ls}, for better understanding:
+
+\lstset{label=lst:ssh-prepend-example}
+\begin{lstlisting}
+source ~/.bashrc; ls -al
+\end{lstlisting}
+
+The \texttt{\textasciitilde/.bashrc} file could simply contain a line that exports the \texttt{PATH} variable like in this example:
+
+\lstset{label=lst:ssh-bashrc-example}
+\begin{lstlisting}
+export PATH=$HOME/bin:/bin:/usr/local/bin:/usr/bin:/sbin:/usr/local/sbin:/usr/sbin
+\end{lstlisting}
+
+That being said, all the inconveniences that made the automation of sending commands over SSH have been surpassed.
+To ensure redundancy though, there was introduced a serial interface as well, for the same purpose as the \texttt{ethernet} interface, presented next.
 
 \subsubsection{Administration via Serial Interface}
 \label{sub-sub-sec:admin-serial}
 
+This serial interface plays an important role in using \project.
+For normal cases it wouldn't be needed, but it serves as a means of backup way of connecting to the VM when everything else fails, i.e. the networking stack is not working anymore because of some bad driver, or other causes.
+Basically it is just created when the VM is started, and then it can be accessed through a socket file located on disk.
+Similarly to the serial interface linked to Qemu Monitor described in the section about \labelref{Qemu Monitor}{sub-sub-sec:qemu-monitor}, this can be accessed with a command like the following:
+
+\lstset{label=lst:socat-serial-example}
+\begin{lstlisting}
+socat - /tmp/VM-test1/vm-mgmt-console.socket
+\end{lstlisting}
+
+The user then can then manually enter commands to debug what happened on the VM and see if he can fix the issues.
+It is also useful for using GDB remotely, for the same purpose of debugging.
+
 \subsection{VM Init Script}
 \label{sub-sec:vm-init-script}
 
-\todo{(a doua parte - implementare cu detalii cu tot)
-* module de python
-* interfata seriala
-* qemu monitor
-* interfete de test si interfete de management
-* ssh
-* xterm
-* vLab CLI
-* cum anunta un node ca a pornit
-}
+In this section we will discuss about what happens when a VM boots up, and how \project\ is announced when a \texttt{Host} has finished the booting process.
+
+To begin, the Linux Kernel needs an \texttt{init} process that is the parent for every other process in the system.
+This process can be anything from a small shell script that continuously spawns a shell if there is an attempt to close the newly created shell, to the more complicated way of running multiple initialization scripts.
+Because we do not actually need everything that is normally initialized in a full Linux distribution, we chose to implement our own \texttt{script}, that does the basic task of spawning a shell and some more initialization tasks needed for this application.
+This is mostly responsible for setting up the hostname, mounting the root, the shared home and other directories and for setting up the interfaces.
+It also configures an IP on the management \texttt{ethernet} interface and then starts the dropbear SSH server.
+The last thing it does before spawning a shell is to announce the physical host machine that this VM has finished the booting process and can begin to execute any other user requests.
+
+To sum up, this script is pretty simple and lightweight such that only the necessary things are created at startup, with no clutter.
+There are no daemons, nor other magic scripts involved, so its structure is easy to understand and to maintain if changes are needed in the future.
