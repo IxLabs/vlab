@@ -11,18 +11,19 @@ Next, the application internals will be presented in detail in \labelindexref{Se
 This section is going to be introduced by \labelindexref{Figure}{img:class-overview-simplified}, which shows a Class Diagram that describes the overview of the application architecture.
 It shows a simplified version of the full class-diagram for a better understanding of the structure while not losing the important aspects.
 
-\fig[scale=0.65]{src/img/diagrams/class-overview-simplified.pdf}{img:class-overview-simplified}{Class diagram overview simplified}
+\fig[scale=0.65]{src/img/diagrams/class-overview-simplified.pdf}{img:class-overview-simplified}{Simplified \project\ class diagram overview}
 
 \subsection{From Config File to Execution}
 \label{sub-sec:arh-config-to-exec}
 
-The entry point to this application are the \textbf{config files} which in general terms consist of one or more persistent information about some state of a given application.
-In \labelindexref{Section}{sec:hosts-and-topologies} it can be clearly seen that this part is encapsulated inside the \texttt{VmConfig} class, which holds the informations from each config file.
+The entry point for \project\ application are the \textbf{config files} which in general terms consist of one or more persistent information about some state of a given application.
+In \labelindexref{Section}{sec:hosts-and-topologies} we showed that this part is encapsulated inside the \texttt{VmConfig} class, which holds the informations from each config file.
 These configurations are vital for the ability to easily specify different kinds of network topologies and types of Hosts.
 
-When \project\ is run, the first thing that is created is the \texttt{CLI} class which then instantiates \texttt{Vlab}, an object that holds every necessary information for this application.
+Starting \project, the first thing that is created is the \texttt{CLI} class which then instantiates \texttt{Vlab}, an object that holds every necessary information for this application.
 Then, all the config files are read from disk, parsed and then all the \texttt{Node} objects  are created according to these files. The \texttt{Nodes} can be either instances of \texttt{Switch} or \texttt{Host} classes.
-From this point, it is up to the user what he does next, as he can choose to start the VMs, and then run some commands on them, or simply exit the application.
+From this point, the control is passed to the user via a command prompt.
+Several options are: start the VMs, run commands on VMs, or simply exit the application.
 The user commands are parsed with help from the CLI.
 
 \subsection{A More Detailed View of Configs}
@@ -76,7 +77,7 @@ All these types can be seen more clearly in the sample configuration file in \la
 \label{sub-sec:classes-description-interaction}
 
 At the beginning of this chapter we introduced a simplified Class Diagram for \project\ in \labelindexref{Figure}{img:class-overview-simplified}.
-This section aims to explain the connections of these classes and their roles within the entire system.
+This section explains the connections of these classes and their roles within the entire system.
 We barely touched the surface of the application by presenting configs and what they need to contain.
 
 \subsubsection{CLI and Vlab Classes}
@@ -99,7 +100,7 @@ This pattern is used in order to make the application extensible and easy to mai
 \label{sub-sub-sec:host-class}
 
 One of the \texttt{Node} implementations is the \texttt{Host} class.
-It encapsulates the behavior of a virtualized host, which in Mininet was a simple process and in \project\ is a fully capable Virtual Machine that runs a Linux Kenrnel.
+It encapsulates the behavior of a virtualized host, which in Mininet was a simple process and in \project\ is a fully capable Virtual Machine that runs a Linux Kernel.
 It's responsibility is to take care of the representation of an end-user machine which knows how to start and stop itself and how to receive commands and execute them reliably.
 Although the interface is pretty simple, the inner representation is a little more complex and here is where the \texttt{VmHandler} class comes handful by handling all the communication between \project\ and the corresponding Qemu VM.
 Before starting the VM, the \texttt{VmHandler} requests the command line that needs to be run at startup from its \texttt{VmConfig} instance and only executes that command as a new process as if the user himself typed that command in a terminal.
@@ -161,7 +162,8 @@ These management interfaces will be treated separately in \labelref{Next Chapter
 \label{sub-sec:communication-with-vm}
 
 As we already covered in previous sections, a \texttt{Host} is in fact a VM that is run over Qemu.
-When a \texttt{Host} is started, a new Qemu VM is created with help from the \texttt{VmHandler} class which runs a pretty long command for starting up a new VM.
+When a \texttt{Host} is started, a new Qemu VM is created with help from the \texttt{VmHandler} class which runs Qemu executable with parameters gathered from config
+files for starting up a new VM.
 Through the parameters of this command one can specify several kinds of interfaces that can be added to the VM and how to interact with them.
 One of these interfaces is the Qemu Monitor presented next.
 
