@@ -1,10 +1,22 @@
 \chapter{Conclusion and Future Work}
 \label{chapter:Chapter 6}
 
-\todo{* ce nu suportam inca si ar fi util de implementat
-* integrare cu miniedit
-* legare switch-uri intre ele
-* controlerre pentru switch-uri
+Computing power increases more an more, new architectures appear with new software that comes along.
+Our needs are also constantly growing, but one resource does not grow.
+It is the time that pressures us more and more as distractions appear and capture our attention.
+This is the reason why we want to maximize the efficiency of programmers when they develop new or existing software.
+This project concentrated on getting to this goal by automating as much work as possible the developer's work flow by creating an infrastructure for him to test his hardly worked network kernel modules.
 
-* E un proiect open source și poate fi găsit codul pe GitHub și oricine poate contribui.
-}
+One important aspect of this project is the fact that it is available open source, free to use by anybody.
+It can be found on GitHub in as a Git repository\footnote{\url{https://github.com/IxLabs/vlab}}, where people can always get the latest source code, as well as contributing to the project by reporting bugs, updating the code for their needs, and even submitting patches with new features.
+
+As possible future features that can be implemented we enumerate a few of them:
+\begin{itemize}
+  \item Integration with Mininet
+  \item Possibility to create links between \texttt{Switches}
+  \item Adding another \texttt{Node} implementation, the \texttt{Controller} for \texttt{Switches}
+\end{itemize}
+
+The first feature is plausible, as both Mininet and \project\ work with network topologies, but in fact \project\ goes in a different direction when spawning VMs.
+Nevertheless, the architecture was designed to be flexible enough, having this possibility in mind from the beginning.
+The other two features are also good candidates, as they would add even more values for people testing \texttt{Switches}.
