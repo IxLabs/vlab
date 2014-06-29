@@ -165,7 +165,7 @@ As we already covered in previous sections, a \texttt{Host} is in fact a VM that
 When a \texttt{Host} is started, a new Qemu VM is created with help from the \texttt{VmHandler} class which runs Qemu executable with parameters gathered from config
 files for starting up a new VM.
 Through the parameters of this command one can specify several kinds of interfaces that can be added to the VM and how to interact with them.
-One of these interfaces is the Qemu Monitor presented next.
+One of these interfaces is the Qemu monitor presented next.
 
 \subsubsection{Qemu Monitor}
 \label{sub-sub-sec:qemu-monitor}
@@ -177,9 +177,9 @@ More importantly, he can add or remove network interfaces, which are the focus o
 By default, Qemu opens a separate window where the Monitor can be accessed.
 Because \project\ aims to automate a lot of work for the user, this window is no longer spawned when booting the VM and instead a new named socket file is created on disk.
 The user can then choose if and when to connect to this interface in order to manually modify the settings of the current Virtual Machine.
-There are many possibilities to connect to this Qemu Monitor \cite{qemu-monitor}, and \project\ chose to use the \texttt{socat} command\footnote{\url{http://manpages.ubuntu.com/manpages/trusty/man1/filan.1.html}} which is the simpler possibility from the many existing.
-Also, another reason for using this mode for connecting to the Qemu Monitor is that it is easier to send the commands programmatically for adding or removing network interfaces at runtime.
-This is actually exactly what \project\ does when a VM is started and is connected to something else in a topology: it sends commands to the Qemu Monitor to create the simulated physical network interface, which is then configured after booting is complete.
+There are many possibilities to connect to this Qemu monitor \cite{qemu-monitor}, and \project\ chose to use the \texttt{socat} command\footnote{\url{http://manpages.ubuntu.com/manpages/trusty/man1/filan.1.html}} which is the simpler possibility from the many existing.
+Also, another reason for using this mode for connecting to the Qemu monitor is that it is easier to send the commands programmatically for adding or removing network interfaces at runtime.
+This is actually exactly what \project\ does when a VM is started and is connected to something else in a topology: it sends commands to the Qemu monitor to create the simulated physical network interface, which is then configured after booting is complete.
 The task of sending commands is accomplished with help from the \texttt{socket} Python module\footnote{\url{https://docs.python.org/2/library/socket.html}} which permits easy interaction with sockets from within the code.
 
 Even though this interface is intended for internal use only, one can still choose to manually connect to it and add or remove network interfaces or other devices on the VM.
@@ -190,7 +190,7 @@ It is just a matter of entering a command like the following:
 socat - /tmp/VM-test1/vm-monitor-console.socket
 \end{lstlisting}
 
-This command makes the user to connect directly to the serial interface to which the Qemu Monitor is connected, and then he can simply issue the desired requests.
+This command makes the user to connect directly to the serial interface to which the Qemu monitor is connected, and then he can simply issue the desired requests.
 
 \subsubsection{Administration via SSH}
 \label{sub-sub-sec:admin-SSH}
@@ -245,7 +245,7 @@ To ensure redundancy though, there was introduced a serial interface as well, fo
 This serial interface plays an important role in using \project.
 For normal cases it wouldn't be needed, but it serves as a means of backup way of connecting to the VM when everything else fails, i.e. the networking stack is not working anymore because of some bad driver, or other causes.
 Basically it is just created when the VM is started, and then it can be accessed through a socket file located on disk.
-Similarly to the serial interface linked to Qemu Monitor described in the section about \labelref{Qemu Monitor}{sub-sub-sec:qemu-monitor}, this can be accessed with a command like the following:
+Similarly to the serial interface linked to Qemu monitor described in the section about \labelref{Qemu Monitor}{sub-sub-sec:qemu-monitor}, this can be accessed with a command like the following:
 
 \lstset{label=lst:socat-serial-example}
 \begin{lstlisting}
