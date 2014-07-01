@@ -5,7 +5,7 @@ This chapter aims to provide a broad view of the \project\ application in terms 
 The focus is on who can use \project\ and what can one do with the application, namely what are the main use cases for it.
 Then, a short description about what actually happens in the back-end is made for the user to better understand the workflow.
 
-\section{Who Uses \project?}
+\section{\project\ Use Cases}
 \label{sec:who-uses-vlab}
 
 Basically anyone can use \project, given the fact that it is an open source project and it's freely available.
@@ -27,7 +27,7 @@ He can either start or stop every Virtual Machine, which in \project\ are referr
 This first case would be the preferred one for automated testing, while the latter would only be used for debugging purposes, let's say one would need to start only some machines from a given network topology and then run debugging commands like \texttt{tcpdump} to check only that part in the topology.
 
 Of course, the application is designed such that the user cannot accidentally start the Virtual Machines if they are already started, or in the process to be turned on, as well as for the process of turning them off.
-This behavior not only easier to implement and test, but it is also the best choice in this case, as it guarantees that the hosts corresponding to the topology can be started once and only once, which in fact means the number of states in which the application can be at some point is deterministic.
+This behavior is not only easier to implement and test, but it is also the best choice in this case, as it guarantees that the hosts corresponding to the topology can be started once and only once, which in fact means the number of states in which the application can be at some point is deterministic.
 
 \subsection{Spawning an Xterm Session on Each VM}
 \label{sub-sec:spawn-xterm}
@@ -71,7 +71,7 @@ The other main paths through the application are represented by the commands for
 There is a command that can start every host at once, or another which starts only one host given its hostname.
 While the machines are in the process to be started, the user cannot issue any other new commands, as they would need to be turned on anyway for being able to receive the commands.
 Before actually trying to start a machine, the application verifies whether it was already turned on or not.
-The counterpart of the start command is of course, the stop one, which does the reverse.
+The counterpart of the start command is, of course, the stop one, which does the reverse.
 
 Any other command is simply executed and then the output is printed to the console where the CLI is run.
 These kind of instructions represent the part where the user can begin running tests, or do whatever he wants with any of the machines that he just spawned.

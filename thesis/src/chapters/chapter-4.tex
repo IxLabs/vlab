@@ -43,12 +43,12 @@ Drilling down a little deeper within this file, there can be found three main ob
   \item Links between \texttt{Nodes} and \texttt{Switches}
 \end{itemize}
 
-\texttt{Host} objects from this config file contain several options, but the only ones that are really used by \project\ are the hostname and the ip, which serve as a means of specifying the IP address which will be used on the testing interface, as well as how the \texttt{Host} will be named.
+\texttt{Host} objects from this config file contain several options, but the only ones that are really used by \project\ are the \texttt{hostname} and the \texttt{IP}, which serve as a means of specifying the IP address which will be used on the testing interface, as well as how the \texttt{Host} will be named.
 Besides these two properties, the number of Virtual Machines that need to be created is inferred from the number of \texttt{Hosts}, avoiding the usage of more resources than needed for the purpose of the given test case.
 Other informations more specific to \texttt{Hosts} that are topology independent are described in another config file, detailed in the next subsection.
 
-For \texttt{Switches} there is no need to use anything else other than the hostname option, which has the same purpose as the one for \texttt{Hosts}.
-In future versions of \project\ there could be other options to be specified, but for this implementation is limited to the use of a hostname.
+For \texttt{Switches} there is no need to use anything else other than the \texttt{hostname} option, which has the same purpose as the one for \texttt{Hosts}.
+In future versions of \project\ there could be other options to be specified, but for this implementation is limited to the use of a \texttt{hostname}.
 
 The links between the \texttt{Nodes} are defined as a list of adjacency in the config file, specifying for each connection the source and destination.
 Very intuitively, the names of the fields are \texttt{src} and \texttt{dest}, the values having to be specified by the hostnames of the corresponding \texttt{Nodes} that are linked together.
@@ -80,7 +80,7 @@ At the beginning of this chapter we introduced a simplified Class Diagram for \p
 This section explains the connections of these classes and their roles within the entire system.
 We barely touched the surface of the application by presenting configs and what they need to contain.
 
-\subsubsection{CLI and Vlab Classes}
+\subsubsection{CLI and \project\ Classes}
 \label{sub-sub-sec:cli-vlab-classes}
 
 The core class in this diagram is \texttt{Vlab}, which is responsible to coordinate the logic of the structure and to create all the necessary objects in the right order while running.
@@ -264,7 +264,7 @@ To begin, the Linux Kernel needs an \texttt{init} process that is the parent for
 This process can be anything from a small shell script that continuously spawns a shell if there is an attempt to close the newly created shell, to the more complicated way of running multiple initialization scripts.
 Because we do not actually need everything that is normally initialized in a full Linux distribution, we chose to implement our own \texttt{script}, that does the basic task of spawning a shell and some more initialization tasks needed for this application.
 This is mostly responsible for setting up the hostname, mounting the root, the shared home and other directories and for setting up the interfaces.
-It also configures an IP on the management \texttt{ethernet} interface and then starts the dropbear SSH server.
+It also configures an IP on the management \texttt{ethernet} interface and then starts the Dropbear SSH server.
 The last thing it does before spawning a shell is to announce the physical host machine that this VM has finished the booting process and can begin to execute any other user requests.
 
 To sum up, this script is pretty simple and lightweight such that only the necessary things are created at startup, with no clutter.

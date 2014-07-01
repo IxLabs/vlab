@@ -1,11 +1,19 @@
 \chapter{Conclusion and Future Work}
 \label{chapter:Chapter 6}
 
-Computing power increases more an more, new architectures appear with new software that comes along.
-Our needs are also constantly growing, but one resource does not grow.
-It is the time that pressures us more and more as distractions appear and capture our attention.
-This is the reason why we want to maximize the efficiency of programmers when they develop new or existing software.
-This project concentrated on getting to this goal by automating as much work as possible the developer's work flow by creating an infrastructure for him to test his hardly worked network kernel modules.
+This chapter will summarize what was achieved so far with \project\ and what features I will work on in the future.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+\project\ is an efficient tool for automating the development and testing of kernel network modules.
+It does this in a flexible manner, allowing users to easily configure the topologies they want to test, as well as the properties of the nodes they simulate.
+
+Even though in its current state \project\ does not support all kinds of \texttt{Nodes}, we reached our goals by having an application that works not only for small network topologies, but also on bigger networks with more \texttt{Nodes}.
+It was indeed a challenge to make it flexible and design it to be easily integrated with other software, but in the end it proved very rewarding as we worked with multiple Virtual Machines on the same physical host.
+
+\section{Future Work}
+\label{sec:future-work}
 
 One important aspect of this project is the fact that it is available open source, free to use by anybody.
 It can be found on GitHub in as a Git repository\footnote{\url{https://github.com/IxLabs/vlab}}, where people can always get the latest source code, as well as contributing to the project by reporting bugs, updating the code for their needs, and even submitting patches with new features.

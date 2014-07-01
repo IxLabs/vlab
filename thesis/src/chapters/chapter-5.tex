@@ -1,7 +1,24 @@
 \chapter{Results}
 \label{chapter:Chapter 5}
 
-This chapter presents what we managed to obtain after implementing \project\ and what how scalable it is.
+This chapter presents what we managed to obtain after implementing \project\, what features work and how scalable it is.
+
+\section{Testing}
+\label{sec:testing}
+
+For development testing and validation we used the topology from \labelindexref{Listing}{lst:config-one-switch-two-hosts} along with the config file defined in \labelindexref{Listing}{lst:vm-config}.
+These configurations represent a simple typical environment that a programmer would use when developing kernel network modules.
+
+We tested \project\ for this configuration and manually checked that the features presented in this paper actually work.
+We successfully ran the application and started all the \texttt{Nodes}, and then tested the connectivity between the two \texttt{Nodes} with the \texttt{ping} command.
+This was done multiple times to ensure that the application does not crash and behaves accordingly.
+Another check was also made to make sure that the interfaces created on the physical host machine are cleaned after stopping the \texttt{Nodes} and the application.
+Moreover, we tested \project\ with another configuration with 10 \texttt{Hosts} linked to one \texttt{Switch} to assure that the application is indeed flexible and configurable.
+Following is presented the evaluation of \project\ in terms of how well it scales with the number of \texttt{Nodes}.
+
+\section{Evaluation}
+\label{sec:evaluation}
+
 One of the most important resources is time, and in \labelindexref{Figure}{img:time-for-starting-vms} we present how using \project\ scales when starting up the VMs.
 The image shows on the horizontal axis the number of VMs that were started for a given run and on the vertical axis the time it took from when the user submitted the \texttt{start_all} command until every machine has booted.
 There were 10 runs for each data point, and we plotted the average, minimum and maximum runs to ensure that the results are not biased by the system load at the time the benchmark was run.
@@ -58,9 +75,9 @@ We can see that the deviation from the average is not very big, concluding that 
 The benchmark was run on a system with 12GB of RAM, a quad core processor clocked at 2.6GHz, running an operating system based with Linux Kernel 3.14.
 For the general case, a user would not need more than 20 \texttt{Hosts} within his topology to test a protocol, but for reference we tested for 50 \texttt{Hosts} as well.
 
-Without \project, one would need to manually create, start and configure VMs created with Virtual Box or VMWare, a process which would take a lot more than 1-2 minutes.
+Without \project, one would need to manually create, start and configure VMs created with Virtual Box or VMware, a process which would take a lot more than 1-2 minutes.
 Also, another important aspect that we realized with \project\ is the fact that because we used a shared folder that is used by every VM, we actually saved a lot of disk space.
-Before, one would need a lot more space because every VirtualBox or VMWare VM needed its own disk, duplicating much data.
+Before, one would need a lot more space because every VirtualBox or VMware VM needed its own disk, duplicating much data.
 For example, we only need around 50MB of disk space for the Linux Image and the other tools like Dropbear and BusyBox.
 This is valid even if we start one machine or 100.
 With the old solutions, the space used was growing linearly with the number of machines, like for one machine we would need let's say 700MB of disk space, but when we scale that to 20 machines, it means over 13GB of disk space, just for the machines.
